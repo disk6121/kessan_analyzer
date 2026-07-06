@@ -40,8 +40,6 @@ st.set_page_config(page_title="決算分析アプリ", layout="wide")
 st.title("📊 決算短信分析アプリ")
 st.write("決算短信をアップロードすると自動で分析を行います。")
 
-from dotenv import load_dotenv
-load_dotenv
 
 # sqlite3からcompaniesテーブルとinitial_dataテーブルを取得
 init_db()
