@@ -2,7 +2,6 @@ import json
 import supabase
 import streamlit as st
 
-from database.db import get_connection
 from database.supabase_client import supabase
 
 
