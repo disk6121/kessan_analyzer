@@ -2,7 +2,6 @@ import os
 import streamlit as st
 import pandas as pd
 
-from database.db import init_db
 from database.db import refresh_watchlist_prices_batch
 from database.db import get_watchlist
 from database.db import delete_company
