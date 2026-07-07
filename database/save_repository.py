@@ -1,4 +1,4 @@
-from database.db import get_connection
+
 from database.supabase_client import supabase
 
 import json
