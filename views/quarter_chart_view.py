@@ -25,13 +25,13 @@ def render_quarter_chare(combined_data):
         df_8q_clean = pd.DataFrame()
 
     if not df_8q_clean.empty:
-        st.subheader("📈 業績トレンド分析（単四半期 8期連続推移）")
+        st.subheader("📈 業績トレンド分析（単四半期 連続推移）")
         plt.rcParams['font.family'] = 'MS Gothic'
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
    
         # 売上グラフ
         ax1.bar(df_8q_clean["Period"], df_8q_clean["Revenue"], color="royalblue", alpha=0.8, width=0.5)
-        ax1.set_title("単四半期 売上高の推移 (8期連続)", weight='bold')
+        ax1.set_title("単四半期 売上高の推移", weight='bold')
         ax1.grid(axis='y', linestyle='--')
         latest_idx = len(df_8q_clean) - 1
         if latest_idx >= 0:
@@ -44,7 +44,7 @@ def render_quarter_chare(combined_data):
         # 利益グラフ
         df_8q_clean["Margin(%)"] = (df_8q_clean["Income"] / df_8q_clean["Revenue"] * 100).round(2)
         ax2.bar(df_8q_clean["Period"], df_8q_clean["Income"], color="orange", alpha=0.8, width=0.5, label="営業利益")
-        ax2.set_title("単四半期 営業利益率の推移 (8期連続)", weight='bold')
+        ax2.set_title("単四半期 営業利益率の推移", weight='bold')
         ax2.grid(axis='y', linestyle='--')
         ax2_twin = ax2.twinx()
         ax2_twin.plot(df_8q_clean["Period"], df_8q_clean["Margin(%)"], color="crimson", marker="o", lw=2, label="営業利益率")
