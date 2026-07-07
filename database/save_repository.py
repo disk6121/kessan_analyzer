@@ -8,15 +8,6 @@ import math
 import pandas as pd
 
 
-# ---------------------------------------------------------
-# 移行テスト完了
-# ---------------------------------------------------------
-
-
-USE_SUPABASE = True
-
-
-
 def prepare_analysis_data(
         analysis,
         reports_dict,
@@ -80,45 +71,7 @@ def clean(v):
 
 
 
-#1-1　テスト済み
-def save_analysis_to_sqlite_companies(prepared):
-    meta = prepared["meta"]
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        """        
-        SELECT buy_target, sell_target, investment_memo
-        FROM companies
-        WHERE ticker = ?
-        """,
-        (meta["ticker"],)
-    )
-    existing = cursor.fetchone()
-
-    buy_target = existing[0] if existing else None
-    sell_target = existing[1] if existing else None
-    investment_memo = existing[2] if existing else ""
-
-    cursor.execute("""
-        INSERT OR REPLACE INTO companies
-        (ticker, company_name, analyzed_period, saved_date, current_price, per, pbr, div_yield, 
-                    is_favorite, investment_memo, financial_meta_json, annual_perf_json, buy_target, sell_target, user_forecast_json)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?,
-                COALESCE((SELECT is_favorite FROM companies WHERE ticker=?), 0),
-                ?, ?, ?, ?, ?, ?)
-    """, (meta["ticker"], meta["company_name"], meta["analyzed_period"], prepared["today_str"], meta.get("current_price"), meta.get("per"), meta.get("pbr"), meta.get("div_yield"),
-           meta["ticker"], 
-           investment_memo, json.dumps(prepared["financial_pack"]), json.dumps(prepared["annual_perf_pack"]),buy_target, sell_target, json.dumps(meta.get("user_forecast",{}))
-    ))
-
-    conn.commit()
-    conn.close()
-
-
-#1-2　テスト済み
-def save_analysis_to_supabase_companies(prepared):
+def save_company(prepared):
     meta = prepared["meta"]
 
     result = (
@@ -168,17 +121,7 @@ def save_analysis_to_supabase_companies(prepared):
     )
 
 
-#1-3 テスト済み
-def save_company(prepared):
-    if USE_SUPABASE:
-        save_analysis_to_supabase_companies(prepared)
-    else:
-        save_analysis_to_sqlite_companies(prepared)
-
-
-
-#2-1　テスト済み
-def save_analysis_to_supabase_initial_data(analysis, prepared):
+def save_initial_data(analysis, prepared):
     meta = prepared["meta"]
 
     # 既存データ取得
@@ -227,48 +170,6 @@ def save_analysis_to_supabase_initial_data(analysis, prepared):
     )
 
 
-#2-2　テスト済み
-def save_analysis_to_sqlite_initial_data(analysis,prepared):
-    meta = prepared["meta"]
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT combined_data_json, seg_data_json FROM initial_data WHERE ticker=?", (meta["ticker"],))
-        
-    existing_row = cursor.fetchone()
-
-    if existing_row:
-        old_combined = json.loads(existing_row[0])
-        old_seg = json.loads(existing_row[1])
-        old_combined.update(analysis["combined"])
-        old_seg.update(analysis["seg"])
-        final_combined = old_combined
-        final_seg = old_seg
-    else:
-        final_combined = analysis["combined"]
-        final_seg = analysis["seg"]
-
-    cursor.execute("""
-        INSERT OR REPLACE INTO initial_data (ticker, combined_data_json, seg_data_json, ai_deep_dive_json, deep_dive_memo, peer_comparison_json)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (meta["ticker"], json.dumps(final_combined), json.dumps(final_seg), prepared["reports_json_str"], prepared["deep_dive_memo"], prepared["peer_comparison_json"]))
-
-    conn.commit()
-    conn.close()
-
-
-
-
-
-#2-3 テスト済み
-def save_initial_data(analysis, prepared):
-    if USE_SUPABASE:
-        save_analysis_to_supabase_initial_data(analysis, prepared)
-    else:
-        save_analysis_to_sqlite_initial_data(analysis,prepared)
-
-
 
 def save_analysis_data(
         analysis,
@@ -290,8 +191,7 @@ def save_analysis_data(
 
 
 
-#3-1　テスト済み
-def save_companies_memo_supabase(edited_df):
+def save_companies_memo(edited_df):
     for _, row in edited_df.iterrows():
         fav_val = bool(row["⭐お気に入り"])
         (
@@ -307,47 +207,8 @@ def save_companies_memo_supabase(edited_df):
             .execute()
         )
 
-#3-2　テスト済み
-def save_companies_memo_sqlite(edited_df):
-    conn = get_connection()
-    cursor = conn.cursor()
-    for idx, row in edited_df.iterrows():
-        fav_val = 1 if row["⭐お気に入り"] else 0
-        cursor.execute(
-            """
-            UPDATE companies
-            SET
-                is_favorite = ?,
-                investment_memo = ?,
-                buy_target = ?,
-                sell_target = ?
-            WHERE ticker = ?
-            """,
-            (
-                fav_val, 
-                row["投資メモ"],
-                row["買いたい価格"],
-                row["売りたい価格"],
-                row["証券コード"]
-            )
-        )
-    conn.commit()
-    conn.close()
 
-
-
-#3-3　テスト済み
-def save_companies_memo(edited_df):
-    if USE_SUPABASE:
-        return save_companies_memo_supabase(edited_df)
-    else:
-        return save_companies_memo_sqlite(edited_df)
-
-
-
-
-#4-1 テスト済み
-def save_common_note_sqlite(note):
+def save_common_note(note):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -359,30 +220,5 @@ def save_common_note_sqlite(note):
     """, (note,))
     conn.commit()
     conn.close()
-
-
-#4-2 テスト済み
-def save_common_note_supabase(note):
-
-    (
-        supabase
-        .table("app_settings")
-        .upsert({
-            "setting_key": "common_note",
-            "setting_value": note
-        })
-        .execute()
-    )
-
-
-#4-3 テスト済み
-def save_common_note(note):
-    if USE_SUPABASE:
-        return save_common_note_supabase(note)
-    else:
-        return save_common_note_sqlite(note)
-
-
-
 
 
