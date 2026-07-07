@@ -23,6 +23,14 @@ from views.analysis_view import render_analysis_visuals
 import json
 import streamlit as st
 
+from matplotlib import font_manager
+import matplotlib.pyplot as plt
+from pathlib import Path
+
+font_path = Path(__file__).resolve().parent.parent / "fonts" / "NotoSansJP-VariableFont_wght.ttf"
+font_manager.fontManager.addfont(str(font_path))
+plt.rcParams["font.family"] = "Noto Sans JP"
+plt.rcParams["axes.unicode_minus"] = False
 
 def load_json(value):
     if value is None:
