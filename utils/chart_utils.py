@@ -3,15 +3,16 @@ from matplotlib import font_manager
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-font_path = Path(__file__).resolve().parent.parent / "fonts" / "NotoSansJP-VariableFont_wght.ttf"
-
-font_manager.fontManager.addfont(str(font_path))
-
-plt.rcParams["font.family"] = "Noto Sans JP"
-plt.rcParams["axes.unicode_minus"] = False
 
 
 def draw_growth_arrow(ax, df, target_idx, compare_idx, label, color, offset_y):
+    font_path = Path(__file__).resolve().parent.parent / "fonts" / "NotoSansJP-VariableFont_wght.ttf"
+
+    font_manager.fontManager.addfont(str(font_path))
+
+    plt.rcParams["font.family"] = "Noto Sans JP"
+    plt.rcParams["axes.unicode_minus"] = False
+
     if target_idx < len(df) and compare_idx >= 0 and compare_idx < len(df):
         val_target = df.iloc[target_idx]['Revenue']
         val_compare = df.iloc[compare_idx]['Revenue']
