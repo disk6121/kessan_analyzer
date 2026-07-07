@@ -6,13 +6,6 @@ from database.db import get_connection
 from database.supabase_client import supabase
 
 
-# ---------------------------------------------------------
-# 移行テスト完了
-# ---------------------------------------------------------
-
-
-USE_SUPABASE = True
-
 
 def load_json(value):
     if value is None:
@@ -22,8 +15,7 @@ def load_json(value):
     return json.loads(value)   # SQLite
 
 
-#1-1　テスト済み
-def load_annual_performance_supabase(ticker):
+def load_company(ticker):
 
     result = (
         supabase
@@ -37,33 +29,9 @@ def load_annual_performance_supabase(ticker):
         return result.data[0].get("annual_perf_json") or {}
     return {}
 
-#1-2　テスト済み
-def load_annual_performance_sqlite(ticker):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT annual_perf_json FROM companies WHERE ticker=?",
-        (ticker,)
-    )
-    row = cursor.fetchone()
-    conn.close()
-
-    if row and row[0]:
-        return json.loads(row[0])
-    return{}
-
-#1-3　テスト済み
-def load_company(ticker):
-    if USE_SUPABASE:
-        return load_annual_performance_supabase(ticker)
-    else:
-        return load_annual_performance_sqlite(ticker)
 
 
-
-
-#2-1
-def load_analysis_data_supabase(ticker):
+def load_analysis_data(ticker):
 
     row_result = (
         supabase
@@ -88,44 +56,8 @@ def load_analysis_data_supabase(ticker):
 
     return row_data, meta_row
 
-#2-2
-def load_analysis_data_sqlite(ticker):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT combined_data_json, seg_data_json, ai_deep_dive_json, deep_dive_memo, peer_comparison_json FROM initial_data WHERE ticker=?", (ticker,))
-    row_data = cursor.fetchone()
-    cursor.execute("SELECT * FROM companies WHERE ticker=?", (ticker,))
-    meta_row = cursor.fetchone()
-    conn.close()
-    return row_data, meta_row
 
-
-#2-3
-def load_analysis_data(ticker):
-    if USE_SUPABASE:
-        return load_analysis_data_supabase(ticker)
-    else:
-        return load_analysis_data_sqlite(ticker)
-
-
-
-
-#3-1　テスト済み
-def load_common_note_sqlite():
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT setting_value
-        FROM app_settings
-        WHERE setting_key = 'common_note'
-    """)
-    row = cursor.fetchone()
-    conn.close()
-    return row[0] if row else ""
-
-
-#3-2　テスト済み
-def load_common_note_supabase():
+def load_common_note():
 
     result = (
         supabase
@@ -142,59 +74,7 @@ def load_common_note_supabase():
 
 
 
-#3-3　テスト済み
-def load_common_note():
-    if USE_SUPABASE:
-        return load_common_note_supabase()
-    else:
-        return load_common_note_sqlite()
-
-
-
-
-#4-1
-def load_existing_quarter_data_sqlite(ticker):
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT combined_data_json,
-               seg_data_json,
-               ai_deep_dive_json,
-               deep_dive_memo,
-               peer_comparison_json
-        FROM initial_data
-        WHERE ticker = ?
-    """, (ticker,))
-    row1 = cursor.fetchone()
-
-    cursor.execute("""
-        SELECT annual_perf_json,
-               user_forecast_json
-        FROM companies
-        WHERE ticker = ?
-    """, (ticker,))
-    row2 = cursor.fetchone()
-
-    conn.close()
-
-    if row1 and row2:
-        return {
-            "combined": json.loads(row1[0]) if row1[0] else {},
-            "seg": json.loads(row1[1]) if row1[1] else {},
-            "reports": row1[2] if row1[2] else {},
-            "deep_dive_memo": row1[3] if row1[3] else {},
-            "peer_comparison_json": row1[4] if row1[4] else {},
-            "annual_perf": json.loads(row2[0]) if row2[0] else {},
-            "user_forecast": json.loads(row2[1]) if row2[1] else {}
-        }
-
-    return None
-
-
-#4-2
-def load_existing_quarter_data_supabase(ticker):
+def load_existing_quarter_data(ticker):
 
     result1 = (
         supabase
@@ -236,16 +116,6 @@ def load_existing_quarter_data_supabase(ticker):
         }
 
     return None
-
-
-#4-3
-def load_existing_quarter_data(ticker):
-    if USE_SUPABASE:
-        return load_existing_quarter_data_supabase(ticker)
-    else:
-        return load_existing_quarter_data_sqlite(ticker)
-
-
 
 
 
