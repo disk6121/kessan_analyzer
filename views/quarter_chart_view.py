@@ -5,18 +5,9 @@ import matplotlib.pyplot as plt
 from utils.chart_utils import draw_growth_arrow
 from utils.quarters_utils import process_to_8quarters
 
-from matplotlib import font_manager
-import matplotlib.pyplot as plt
-from pathlib import Path
-
 
 # ---- 既存のグラフ描画処理（ここからは修正後のデータで計算される） ----
 def render_quarter_chare(combined_data):
-    font_path = Path(__file__).resolve().parent.parent / "fonts" / "NotoSansJP-VariableFont_wght.ttf"
-    font_manager.fontManager.addfont(str(font_path))
-    plt.rcParams["font.family"] = "Noto Sans JP"
-    plt.rcParams["axes.unicode_minus"] = False
-    
     st.divider()
     df_8q = process_to_8quarters(combined_data)
     if not df_8q.empty:
