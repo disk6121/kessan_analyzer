@@ -25,7 +25,7 @@ def render_quarter_chare(combined_data):
 
     if not df_8q_clean.empty:
         st.subheader("📈 業績トレンド分析（単四半期 連続推移）")
-        plt.rcParams['font.family'] = 'MS Gothic'
+        plt.rcParams["font.family"] = "Noto Sans JP"
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
    
         # 売上グラフ
