@@ -5,6 +5,20 @@ import streamlit as st
 from database.supabase_client import supabase
 
 
+def to_dict(value):
+    if value is None:
+        return {}
+
+    if isinstance(value, dict):
+        return value
+
+    if isinstance(value, str):
+        try:
+            return json.loads(value)
+        except Exception:
+            return {}
+
+    return {}
 
 def load_json(value):
     if value is None:
@@ -105,15 +119,14 @@ def load_existing_quarter_data(ticker):
 
     if row1 and row2:
         return {
-            "combined": row1.get("combined_data_json") or {},
-            "seg": row1.get("seg_data_json") or {},
-            "reports": row1.get("ai_deep_dive_json") or {},
+            "combined": to_dict(row1.get("combined_data_json")),
+            "seg": to_dict(row1.get("seg_data_json")),
+            "reports": to_dict(row1.get("ai_deep_dive_json")),
             "deep_dive_memo": row1.get("deep_dive_memo") or "",
-            "peer_comparison": row1.get("peer_comparison_json") or {},
-            "annual_perf": row2.get("annual_perf_json") or {},
-            "user_forecast": row2.get("user_forecast_json") or {}
+            "peer_comparison": to_dict(row1.get("peer_comparison_json")),
+            "annual_perf": to_dict(row2.get("annual_perf_json")),
+            "user_forecast": to_dict(row2.get("user_forecast_json"))
         }
-
     return None
 
 
