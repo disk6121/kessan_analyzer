@@ -209,7 +209,6 @@ def save_companies_memo(edited_df):
 
 
 def save_common_note(note):
-
     (
         supabase
         .table("app_settings")
