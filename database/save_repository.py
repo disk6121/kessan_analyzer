@@ -209,16 +209,13 @@ def save_companies_memo(edited_df):
 
 
 def save_common_note(note):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO app_settings(setting_key, setting_value)
-        VALUES('common_note', ?)
-        ON CONFLICT(setting_key)
-        DO UPDATE SET
-            setting_value=excluded.setting_value
-    """, (note,))
-    conn.commit()
-    conn.close()
 
-
+    (
+        supabase
+        .table("app_settings")
+        .upsert({
+            "setting_key": "common_note",
+            "setting_value": note
+        })
+        .execute()
+    )
