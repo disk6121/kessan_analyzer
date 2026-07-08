@@ -17,12 +17,12 @@ def render_segment_analysis(df_pivot_rev,df_pivot_prof):
 
     fig_seg, (ax_seg1, ax_seg2) = plt.subplots(1, 2, figsize=(16, 5))
     df_pivot_rev.plot(kind="bar", ax=ax_seg1, cmap="tab10", width=0.7)
-    ax_seg1.set_title("セグメント別 売上高推移 (8期連続)", weight='bold')
+    ax_seg1.set_title("セグメント別 売上高推移", weight='bold')
     ax_seg1.set_ylabel("売上高（百万円）")
     ax_seg1.set_xticklabels(ax_seg1.get_xticklabels(), rotation=0)
                
     df_pivot_prof.plot(kind="bar", ax=ax_seg2, cmap="tab10", width=0.7)
-    ax_seg2.set_title("セグメント別 利益推移 (8期連続)", weight='bold')
+    ax_seg2.set_title("セグメント別 利益推移", weight='bold')
     ax_seg2.set_ylabel("セグメント利益（百万円）")
     ax_seg2.set_xticklabels(ax_seg2.get_xticklabels(), rotation=0)
     plt.tight_layout()
