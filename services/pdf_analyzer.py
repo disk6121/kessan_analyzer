@@ -113,7 +113,7 @@ def analyze_pdfs(
                         latest_period_candidate = (current_score[0], current_score[1], p_str)
 
                     meta = res_json.get("investment_meta", {})
-                    for k, v in [("net_income_forecast", "net_income_forecast_million"), ("net_assets", "net_assets_million"),（"non_controlling_interests", "non_controlling_interests_million"）]:
+                    for k, v in [("net_income_forecast", "net_income_forecast_million"), ("net_assets", "net_assets_million"), ("non_controlling_interests", "non_controlling_interests_million")]:
                         if meta.get(v) is not None: stock_meta[k] = meta[v] * 1000000
                     if meta.get("dividend_forecast_yen") is not None: stock_meta["dividend_forecast"] = meta["dividend_forecast_yen"]
                     if meta.get("shares_issued_count") is not None: stock_meta["shares_issued"] = meta["shares_issued_count"]
