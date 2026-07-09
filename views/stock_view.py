@@ -13,7 +13,7 @@ def safe_float(x):
 def render_stock_metrics(stock_meta):
     st.write("#### 📈 株価分析データ")
     col_p1, col_p2, col_p3, col_p4, col_p5 = st.columns(5)
-    col_p6, col_p7, col_p8 = = st.columns(3)
+    col_p6, col_p7, col_p8 = st.columns(3)
     col_p9, col_p10, col_p11, col_p12 = st.columns(4)
     price = safe_float(stock_meta.get("current_price"))
     eps_basic = stock_meta.get("eps_basic")
