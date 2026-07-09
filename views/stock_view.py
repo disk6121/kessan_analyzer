@@ -12,8 +12,9 @@ def safe_float(x):
 
 def render_stock_metrics(stock_meta):
     st.write("#### 📈 株価分析データ")
-    col_p1, col_p2, col_p3, col_p4, col_p5, col_p6 = st.columns(6)
-    col_p7, col_p8, col_p9, col_p10, col_p11 = st.columns(5)
+    col_p1, col_p2, col_p3, col_p4, col_p5 = st.columns(5)
+    col_p6, col_p7, col_p8 = = st.columns(3)
+    col_p9, col_p10, col_p11, col_p12 = st.columns(4)
     price = safe_float(stock_meta.get("current_price"))
     eps_basic = stock_meta.get("eps_basic")
     eps_diluted = stock_meta.get("eps_diluted")
@@ -47,6 +48,10 @@ def render_stock_metrics(stock_meta):
     if net_assets > 0:
         roe = net_income_forecast / net_assets * 100
 
+    #非支配株主持分比率
+    non_controlling_interests = safe_float(stock_meta.get("non_controlling_interests", 0) or 0)
+    non_controlling_interests_rate = non_controlling_interests / net_assets ＊ 100
+    
     # 独自予想1期目・2期目の純利益
     year1_net_income = safe_float(year1.get("net_income"))
     year2_net_income = safe_float(year2.get("net_income"))
@@ -79,8 +84,9 @@ def render_stock_metrics(stock_meta):
     col_p4.metric("PBR (実績)", f"{pbr:.2f} 倍" if pbr else "データなし")
     col_p5.metric("配当利回り (予想)", f"{div_yield:.2f} %" if div_yield else "データなし")
     col_p6.metric("希薄化率",  f"{dilution_rate:.1f} %" if dilution_rate is not None else "データなし")
-    col_p7.metric("ROE (予想)", f"{roe:.2f} %" if roe is not None else "データなし")
-    col_p8.metric("PER (独自予想１期目)", f"{per_year1:.2f} 倍" if per_year1 is not None else "データなし")
-    col_p9.metric("EPS(独自予想１期目)", f"{eps1:.1f}" if eps1 is not None else "データなし")
-    col_p10.metric("PER (独自予想２期目)", f"{per_year2:.2f} 倍" if per_year2 is not None else "データなし")
-    col_p11.metric("EPS(独自予想２期目)", f"{eps2:.1f}" if eps2 is not None else "データなし")
+    col_p7.metric("非支配株主持分比率",  f"{non_controlling_interests_rate:.1f} %" if non_controlling_interests_rate is not None else "データなし")
+    col_p8.metric("ROE (予想)", f"{roe:.2f} %" if roe is not None else "データなし")
+    col_p9.metric("PER (独自予想１期目)", f"{per_year1:.2f} 倍" if per_year1 is not None else "データなし")
+    col_p10.metric("EPS(独自予想１期目)", f"{eps1:.1f}" if eps1 is not None else "データなし")
+    col_p11.metric("PER (独自予想２期目)", f"{per_year2:.2f} 倍" if per_year2 is not None else "データなし")
+    col_p12.metric("EPS(独自予想２期目)", f"{eps2:.1f}" if eps2 is not None else "データなし")
