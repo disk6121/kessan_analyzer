@@ -43,7 +43,7 @@ def analyze_pdfs(
           "this_period_data": {"revenue": 3200, "operating_income": 320},
           "prior_period_data": {"revenue": 2900, "operating_income": 290},
           "investment_meta": {
-            "net_income_forecast_million": 4500000, "net_assets_million": 35000000, "dividend_forecast_yen": 75,
+            "net_income_forecast_million": 4500000, "net_assets_million": 35000000, "non_controlling_interests_million": 900000, "dividend_forecast_yen": 75,
             "shares_issued_count": 16314987460, "treasury_shares_count": 314987460, "cash_and_deposits_million": 5000000,
             "interest_bearing_debt_million": 12000000, "equity_ratio_percent": 38.5, "eps_basic_yen": 123.45, "eps_diluted_yen": 120.87
           },
