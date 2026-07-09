@@ -16,8 +16,8 @@ def render_meta_editor(stock_meta):
             "項目": [
                 "最新株価 (円)",
                 "今期純利益予想 (円)",
-                "前期純利益実績 (百万円)",
                 "純資産 (円)",
+                "非支配株主持分 (円)",
                 "予想配当金 (円)",
                 "発行済株式数 (株)",
                 "自己株式数 (株)",
@@ -27,8 +27,8 @@ def render_meta_editor(stock_meta):
             "値": [
                 float(stock_meta.get("current_price") or 0),
                 float(stock_meta.get("net_income_forecast") or 0),
-                float(ap.get("prior_year_actual", {}).get("net_income") or 0),
                 float(stock_meta.get("net_assets") or 0),
+                float(stock_meta.get("non_controlling_interests") or 0), 
                 float(stock_meta.get("dividend_forecast") or 0),
                 float(shares_issued),
                 float(treasury_shares),
@@ -44,9 +44,8 @@ def render_meta_editor(stock_meta):
             new_vals = edited_meta["値"].tolist()
             stock_meta["current_price"] = new_vals[0]
             stock_meta["net_income_forecast"] = new_vals[1]
-            if "prior_year_actual" not in ap: ap["prior_year_actual"] = {}
-            ap["prior_year_actual"]["net_income"] = new_vals[2]
-            stock_meta["net_assets"] = new_vals[3]
+            stock_meta["net_assets"] = new_vals[2]
+            stock_meta["non_controlling_interests"] = new_vals[3]
             stock_meta["dividend_forecast"] = new_vals[4]
             stock_meta["shares_issued"] = new_vals[5]
             stock_meta["treasury_shares"] = new_vals[6]
