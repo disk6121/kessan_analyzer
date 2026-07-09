@@ -27,6 +27,7 @@ def prepare_analysis_data(
         "treasury_shares": meta.get("treasury_shares"),
         "net_income_forecast": meta.get("net_income_forecast"),
         "net_assets": meta.get("net_assets"),
+        "non_controlling_interests": meta.get("non_controlling_interests"),
         "dividend_forecast": meta.get("dividend_forecast"),
         "eps_basic": meta.get("eps_basic"),
         "eps_diluted": meta.get("eps_diluted")
