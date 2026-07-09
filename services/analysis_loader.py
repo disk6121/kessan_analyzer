@@ -69,6 +69,7 @@ def prepare_analysis_for_view(ticker):
             "user_forecast": user_forecast,
             "net_income_forecast": financial_meta.get("net_income_forecast", 0),
             "net_assets": financial_meta.get("net_assets", 0),
+            "non_controlling_interests": financial_meta.get("non_controlling_interests", 0),           
             "dividend_forecast": financial_meta.get("dividend_forecast", 0),
             "shares_issued": financial_meta.get("shares_issued", 0),
             "treasury_shares": financial_meta.get("treasury_shares", 0),
