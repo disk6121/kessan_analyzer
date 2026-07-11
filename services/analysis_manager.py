@@ -68,12 +68,22 @@ def merge_annual_performance(old_perf, new_perf):
         for v in history.values()
     )
     if not forecast_exist and old_perf:
-        old_forecast = old_perf.get("next_year_forecast")
-        if old_forecast:
+        old_forecast = None
+        # 新形式
+        if "history" in old_perf:
+            for item in old_perf["history"].values():
+                if item.get("type") == "forecast":
+                    old_forecast = copy.deepcopy(item)
+                    break
+        # 旧形式
+        else:
+            old_forecast = old_perf.get("next_year_forecast")
+            if old_forecast:
+                old_forecast = copy.deepcopy(old_forecast)
+                old_forecast["type"] = "forecast"
+        if old_forecast and old_forecast.get("fiscal_year"):
             y = str(old_forecast["fiscal_year"])
-            tmp = copy.deepcopy(old_forecast)
-            tmp["type"] = "forecast"
-            history[y] = tmp
+            history[y] = old_forecast
 
     # -----------------------------
     # ⑤ forecastは1件だけにする
