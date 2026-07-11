@@ -5,6 +5,103 @@ import pandas as pd
 from database.load_repository import load_existing_quarter_data
 from services.pdf_analyzer import analyze_pdfs
 
+import copy
+
+
+def merge_annual_performance(old_perf, new_perf):
+
+    history = {}
+
+    # -----------------------------
+    # ① 旧データ読込
+    # -----------------------------
+    if old_perf:
+        # 新形式
+        if "history" in old_perf:
+            history = copy.deepcopy(old_perf["history"])
+        # 旧形式
+        else:
+            for key in [
+                "prior_year_actual",
+                "current_year_actual_or_forecast"
+            ]:
+                item = old_perf.get(key)
+                if item and item.get("fiscal_year"):
+                    y = str(item["fiscal_year"])
+                    tmp = copy.deepcopy(item)
+                    tmp["type"] = "actual"
+                    history[y] = tmp
+            forecast = old_perf.get("next_year_forecast")
+            if forecast and forecast.get("fiscal_year"):
+                y = str(forecast["fiscal_year"])
+                tmp = copy.deepcopy(forecast)
+                tmp["type"] = "forecast"
+                history[y] = tmp
+
+    # -----------------------------
+    # ② 今回解析した実績
+    # -----------------------------
+    if new_perf:
+        current = new_perf.get("current_year_actual_or_forecast")
+        if current and current.get("fiscal_year"):
+            y = str(current["fiscal_year"])
+            tmp = copy.deepcopy(current)
+            tmp["type"] = "actual"
+            history[y] = tmp
+
+        # -------------------------
+        # ③ 来期予想
+        # -------------------------
+        forecast = new_perf.get("next_year_forecast")
+        if forecast and forecast.get("fiscal_year"):
+            y = str(forecast["fiscal_year"])
+            tmp = copy.deepcopy(forecast)
+            tmp["type"] = "forecast"
+            history[y] = tmp
+
+    # -----------------------------
+    # ④ forecastが取得できなかったら
+    #    古いforecastを残す
+    # -----------------------------
+    forecast_exist = any(
+        v.get("type") == "forecast"
+        for v in history.values()
+    )
+    if not forecast_exist and old_perf:
+        old_forecast = old_perf.get("next_year_forecast")
+        if old_forecast:
+            y = str(old_forecast["fiscal_year"])
+            tmp = copy.deepcopy(old_forecast)
+            tmp["type"] = "forecast"
+            history[y] = tmp
+
+    # -----------------------------
+    # ⑤ forecastは1件だけにする
+    # -----------------------------
+    forecasts = [
+        int(y)
+        for y, d in history.items()
+        if d.get("type") == "forecast"
+    ]
+    if len(forecasts) >= 2:
+        newest = max(forecasts)
+        for y in list(history.keys()):
+            if (
+                history[y].get("type") == "forecast"
+                and int(y) != newest
+            ):
+                history[y]["type"] = "actual"
+    history = dict(
+        sorted(
+            history.items(),
+            key=lambda x: int(x[0])
+        )
+    )
+    return {
+        "history": history
+    }
+
+
 
 def manage_analysis(uploaded_files,api_key):
     if not api_key:
@@ -58,12 +155,19 @@ def manage_analysis(uploaded_files,api_key):
             if peer_comparison_json:
                 st.session_state.peer_comparison_df = pd.DataFrame(peer_comparison_json)
 
-            # -- 通期決算・通期予想は4Qのときのみ更新 --
-            analyze_period = analysis["meta"].get("analyzed_period","")
+            # -- 通期決算・通期予想 --
+            analyze_period = analysis["meta"].get("analyzed_period", "")
+            old_annual_performance = old_data["annual_perf"]
             if any(q in analyze_period for q in ["1Q", "2Q", "3Q"]):
-                old_annual_performance = (old_data["annual_perf"])
+                # 1～3Qは通期データを更新しない
                 if old_annual_performance:
                     analysis["meta"]["annual_performance"] = old_annual_performance
+            else:
+                # 4Qは履歴を残して更新
+                analysis["meta"]["annual_performance"] = merge_annual_performance(
+                    old_annual_performance,
+                    analysis["meta"]["annual_performance"]
+                )
             
             # ------ 独自予想復元 ------
             old_user_forecast = (old_data["user_forecast"])
