@@ -121,7 +121,7 @@ def render_growth_table_past(stock_meta):
     )
 
     st.dataframe(
-        styled_df,
+        growth_df,
         hide_index=True,
         use_container_width=True
     )
