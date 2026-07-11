@@ -382,7 +382,7 @@ if st.session_state.get("current_analysis"):
 
         st.session_state.peer_comparison_df = edited_df.copy()
         st.success("同業他社比較表を更新しました")
-        #st.rerun()
+        st.rerun()
 
 
 
@@ -399,4 +399,4 @@ if st.session_state.get("current_analysis"):
         )
  
         st.success(f"🎉 {analysis['meta']['company_name']} のデータを【統合保存】しました！")
-        st.rerun() 
+        #st.rerun() 
