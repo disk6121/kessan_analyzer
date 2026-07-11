@@ -22,7 +22,7 @@ def get_pct_string(current, base):
     return f"{change:+.1f}%"
 
 
-def render_growth_table(stock_meta):
+def render_growth_table_past(stock_meta):
 
     st.write("#### 📈 通期実績・通期予想")
 
@@ -127,7 +127,7 @@ def render_growth_table(stock_meta):
     )
 
 
-def render_growth_table_temp(stock_meta):
+def render_growth_table(stock_meta):
 
     st.write("#### 📈 通期実績・通期予想")
     annual = stock_meta.get("annual_performance", {}) or {}
