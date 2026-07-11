@@ -169,8 +169,8 @@ def manage_analysis(uploaded_files,api_key):
             analyze_period = analysis["meta"].get("analyzed_period", "")
             if any(q in analyze_period for q in ["1Q", "2Q", "3Q"]):
                 old_annual_performance = (old_data["annual_perf"])
-                    if old_annual_performance:
-                        analysis["meta"]["annual_performance"] = old_annual_performance
+                if old_annual_performance:
+                    analysis["meta"]["annual_performance"] = old_annual_performance
             
             #old_annual_performance = old_data["annual_perf"]
             #if any(q in analyze_period for q in ["1Q", "2Q", "3Q"]):
