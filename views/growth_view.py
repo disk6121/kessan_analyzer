@@ -22,7 +22,7 @@ def get_pct_string(current, base):
     return f"{change:+.1f}%"
 
 
-def render_growth_table1.0(stock_meta):
+def render_growth_table_past(stock_meta):
 
     st.write("#### 📈 通期実績・通期予想")
 
