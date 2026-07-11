@@ -13,6 +13,40 @@ def load_json(value):
         return value      # Supabase
     return json.loads(value)   # SQLite
 
+import copy
+
+def convert_annual_performance(annual_perf):
+    """
+    annual_performanceを新形式へ変換する。
+    既に新形式ならそのまま返す。
+    """
+    if not annual_perf:
+        return {"history": {}}
+
+    # 既に新形式
+    if "history" in annual_perf:
+        return annual_perf
+    history = {}
+
+    # 実績
+    for key in ["prior_year_actual", "current_year_actual_or_forecast"]:
+        item = annual_perf.get(key)
+        if item and item.get("fiscal_year"):
+            tmp = copy.deepcopy(item)
+            tmp["type"] = "actual"
+            history[str(item["fiscal_year"])] = tmp
+
+    # 予想
+    forecast = annual_perf.get("next_year_forecast")
+    if forecast and forecast.get("fiscal_year"):
+        tmp = copy.deepcopy(forecast)
+        tmp["type"] = "forecast"
+        history[str(forecast["fiscal_year"])] = tmp
+    history = dict(sorted(history.items(), key=lambda x: int(x[0])))
+    return {
+        "history": history
+    }
+
 
 def prepare_analysis_for_view(ticker):
     row_data, meta_row= load_analysis_data(ticker)
@@ -29,6 +63,8 @@ def prepare_analysis_for_view(ticker):
         annual_perf = {}
         if meta_row["annual_perf_json"]:
             annual_perf = load_json(meta_row["annual_perf_json"])
+            annual_perf = convert_annual_performance(annual_perf)
+        
         user_forecast = {}
         if meta_row["user_forecast_json"]:
                 try:
