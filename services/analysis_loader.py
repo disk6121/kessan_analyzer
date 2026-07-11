@@ -63,7 +63,7 @@ def prepare_analysis_for_view(ticker):
         annual_perf = {}
         if meta_row["annual_perf_json"]:
             annual_perf = load_json(meta_row["annual_perf_json"])
-            annual_perf = convert_annual_performance(annual_perf)
+            #annual_perf = convert_annual_performance(annual_perf)
         
         user_forecast = {}
         if meta_row["user_forecast_json"]:
