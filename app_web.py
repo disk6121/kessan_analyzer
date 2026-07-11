@@ -382,7 +382,7 @@ if st.session_state.get("current_analysis"):
 
         st.session_state.peer_comparison_df = edited_df.copy()
         st.success("同業他社比較表を更新しました")
-        st.rerun()
+        #st.rerun()
 
 
 
