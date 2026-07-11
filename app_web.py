@@ -390,13 +390,12 @@ if st.session_state.get("current_analysis"):
     st.divider()
     st.write("#### 💾 この企業のデータをウォッチリストに保存しますか？")
 
-
     if st.button(...):
-    st.write("A")
-    save_analysis_data(...)
-    st.write("B")
-    st.success("保存しました")
-    # st.rerun()
+        st.write("A")
+        save_analysis_data(...)
+        st.write("B")
+        st.success("保存しました")
+        # st.rerun()
 
 
 
