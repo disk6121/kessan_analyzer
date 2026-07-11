@@ -74,15 +74,51 @@ def clean(v):
 
 
 def save_company(prepared):
-    st.write("① save_company start")
+    print("① save_company start")
     meta = prepared["meta"]
-    ...
+
+    result = (
+        supabase.table("companies")
+        .select("buy_target, sell_target, investment_memo, is_favorite")
+        .eq("ticker", meta["ticker"])
+        .execute()
+    )
+
+    if result.data:
+        row = result.data[0]
+        buy_target = row.get("buy_target")
+        sell_target = row.get("sell_target")
+        investment_memo = row.get("investment_memo")
+        is_favorite = row.get("is_favorite")
+    else:
+        buy_target = None
+        sell_target = None
+        investment_memo = ""
+        is_favorite = False
+
+    financial_pack = replace_nan(prepared["financial_pack"])
+    user_forecast_json = replace_nan(meta.get("user_forecast",{}))
+
     st.write("② upsert前")
     (
         supabase.table("companies")
         .upsert(
             {
-                ...
+                "ticker" : meta["ticker"],
+                "company_name" : meta["company_name"],
+                "analyzed_period" : meta["analyzed_period"],
+                "saved_date" : prepared["today_str"],
+                "current_price" : meta.get("current_price"),
+                "per" : meta.get("per"),
+                "pbr" : meta.get("pbr"),
+                "div_yield" : meta.get("div_yield"),
+                "is_favorite" : is_favorite,
+                "investment_memo" : investment_memo,
+                "financial_meta_json" : financial_pack,
+                "annual_perf_json" : prepared["annual_perf_pack"],
+                "buy_target" : buy_target,
+                "sell_target" : sell_target,
+                "user_forecast_json" : user_forecast_json
             }
         )
         .execute()
