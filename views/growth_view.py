@@ -18,12 +18,11 @@ def get_margin(value, revenue):
 def get_pct_string(current, base):
     if current is None or base is None or base == 0:
         return "-"
-
     change = (current - base) / base * 100
     return f"{change:+.1f}%"
 
 
-def render_growth_table(stock_meta):
+def render_growth_table1.0(stock_meta):
 
     st.write("#### 📈 通期実績・通期予想")
 
@@ -65,31 +64,23 @@ def render_growth_table(stock_meta):
 
         row = {
             "項目": item_name,
-
             f"{prior_year}/{fiscal_month}期\n金額":
                 format_amount(prior_value),
-
             f"{prior_year}/{fiscal_month}期\n利益率":
                 "-" if metric == "revenue"
                 else get_margin(prior_value, prior.get("revenue")),
-
             f"{current_year}/{fiscal_month}期\n金額":
                 format_amount(current_value),
-
             f"{current_year}/{fiscal_month}期\n利益率":
                 "-" if metric == "revenue"
                 else get_margin(current_value, current.get("revenue")),
-
             f"{current_year}/{fiscal_month}期\n成長率":
                 get_pct_string(current_value, prior_value),
-
             f"{next_year}/{fiscal_month}期\n金額":
                 format_amount(next_value),
-
             f"{next_year}/{fiscal_month}期\n利益率":
                 "-" if metric == "revenue"
                 else get_margin(next_value, next_.get("revenue")),
-
             f"{next_year}/{fiscal_month}期\n成長率":
                 get_pct_string(next_value, current_value)
         }
@@ -102,36 +93,26 @@ def render_growth_table(stock_meta):
     # 色付け
     #
     def style_table(df):
-
         styles = pd.DataFrame(
             "",
             index=df.index,
             columns=df.columns
         )
-
         # 2期前（灰色）
         styles.iloc[:, 1:3] = "background-color:#fafafa"
-
         # 直近期（水色）
         styles.iloc[:, 3:6] = "background-color:#eef7ff"
-
         # 次期（薄緑）
         styles.iloc[:, 6:9] = "background-color:#e1fff1"
-
         # 成長率の色
         for col in df.columns:
             if "成長率" in col:
-
                 for idx in df.index:
-
                     val = str(df.loc[idx, col])
-
                     if val.startswith("+"):
                         styles.loc[idx, col] += "; color:green; font-weight:bold"
-
                     elif val.startswith("-") and val != "-":
                         styles.loc[idx, col] += "; color:red; font-weight:bold"
-
         return styles
 
     styled_df = (
@@ -145,6 +126,97 @@ def render_growth_table(stock_meta):
         use_container_width=True
     )
 
+
+def render_growth_table(stock_meta):
+
+    st.write("#### 📈 通期実績・通期予想")
+    annual = stock_meta.get("annual_performance", {}) or {}
+    history = annual.get("history", {})
+    if not history:
+        st.info("通期データがありません。")
+        return
+    fiscal_month = stock_meta.get("analyzed_period")
+    match = re.search(r"(\d+)月期", str(fiscal_month))
+    fiscal_month = int(match.group(1)) if match else ""
+    items = [
+        ("売上高", "revenue"),
+        ("売上総利益", "gross_profit"),
+        ("営業利益", "operating_income"),
+        ("経常利益", "ordinary_income"),
+        ("純利益", "net_income"),
+    ]
+
+    # 年度順
+    years = sorted(history.keys(), key=int)
+    rows = []
+    for item_name, metric in items:
+        row = {
+            "項目": item_name
+        }
+        prev_value = None
+        for year in years:
+            data = history[year]
+            value = data.get(metric)
+            revenue = data.get("revenue")
+            data_type = data.get("type", "actual")
+            title = f"{year}/{fiscal_month}期"
+            if data_type == "forecast":
+                title += "(予)"
+            row[f"{title}\n金額"] = format_amount(value)
+            row[f"{title}\n利益率"] = (
+                "-"
+                if metric == "revenue"
+                else get_margin(value, revenue)
+            )
+            if prev_value is None:
+                row[f"{title}\n成長率"] = "-"
+            else:
+                row[f"{title}\n成長率"] = get_pct_string(
+                    value,
+                    prev_value
+                )
+            prev_value = value
+        rows.append(row)
+    growth_df = pd.DataFrame(rows)
+    #
+    # 色付け
+    #
+    def style_table(df):
+        styles = pd.DataFrame(
+            "",
+            index=df.index,
+            columns=df.columns
+        )
+        col = 1
+        for year in years:
+            data_type = history[year].get("type")
+            if data_type == "forecast":
+                color = "#e1fff1"      # 薄緑
+            else:
+                color = "#eef7ff"      # 水色
+            styles.iloc[:, col:col+3] = f"background-color:{color}"
+            col += 3
+        # 成長率
+        for col_name in df.columns:
+            if "成長率" not in col_name:
+                continue
+            for idx in df.index:
+                val = str(df.loc[idx, col_name])
+                if val.startswith("+"):
+                    styles.loc[idx, col_name] += ";color:green;font-weight:bold"
+                elif val.startswith("-") and val != "-":
+                    styles.loc[idx, col_name] += ";color:red;font-weight:bold"
+
+        return styles
+    styled_df = (
+        growth_df.style
+        .apply(style_table, axis=None)
+    )
+    st.dataframe(
+        styled_df,
+        hide_index=True,
+        use_container_width=True
+    )
 
 
 
