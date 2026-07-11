@@ -399,4 +399,4 @@ if st.session_state.get("current_analysis"):
         )
  
         st.success(f"🎉 {analysis['meta']['company_name']} のデータを【統合保存】しました！")
-        #st.rerun() 
+        st.rerun() 
