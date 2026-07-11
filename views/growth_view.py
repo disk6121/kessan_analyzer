@@ -212,11 +212,9 @@ def render_growth_table(stock_meta):
         growth_df.style
         .apply(style_table, axis=None)
     )
-    st.dataframe(
-        styled_df,
-        hide_index=True,
-        use_container_width=True
-    )
+
+    st.write(styled_df)
+    st.stop()
 
 
 
