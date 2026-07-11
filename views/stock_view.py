@@ -50,7 +50,10 @@ def render_stock_metrics(stock_meta):
 
     #非支配株主持分比率
     non_controlling_interests = safe_float(stock_meta.get("non_controlling_interests", 0) or 0)
-    non_controlling_interests_rate = non_controlling_interests / net_assets * 100
+    if net_assets:
+        non_controlling_interests_rate = non_controlling_interests / net_assets * 100
+    else:
+        non_controlling_interests_rate = 0
     
     # 独自予想1期目・2期目の純利益
     year1_net_income = safe_float(year1.get("net_income"))
