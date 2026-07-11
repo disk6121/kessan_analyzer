@@ -72,7 +72,27 @@ def clean(v):
 
 
 
+
 def save_company(prepared):
+    st.write("① save_company start")
+    meta = prepared["meta"]
+    ...
+    st.write("② upsert前")
+    (
+        supabase.table("companies")
+        .upsert(
+            {
+                ...
+            }
+        )
+        .execute()
+    )
+    st.write("③ upsert後")
+
+
+
+
+def save_company_tmp(prepared):
     meta = prepared["meta"]
 
     result = (
