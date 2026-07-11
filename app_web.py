@@ -389,30 +389,14 @@ if st.session_state.get("current_analysis"):
 # 【2-6】分析結果を保存
     st.divider()
     st.write("#### 💾 この企業のデータをウォッチリストに保存しますか？")
-
+    
     if st.button("🌟 この分析結果をデータベースに保存する", type="primary", use_container_width=True):
-        print("A")
         save_analysis_data(
             analysis,
             st.session_state.reports_dict,
             st.session_state.deep_dive_memo_input,
             st.session_state.peer_comparison_df
         )
-        print("B")
-        st.success("保存しました")
-        # st.rerun()
-
-
-
-    
-    #if st.button("🌟 この分析結果をデータベースに保存する", type="primary", use_container_width=True):
-
-     #   save_analysis_data(
-      #      analysis,
-       #     st.session_state.reports_dict,
-        #    st.session_state.deep_dive_memo_input,
-         #   st.session_state.peer_comparison_df
-        #)
  
- #       st.success(f"🎉 {analysis['meta']['company_name']} のデータを【統合保存】しました！")
-  #      st.rerun() 
+        st.success(f"🎉 {analysis['meta']['company_name']} のデータを【統合保存】しました！")
+        st.rerun() 
