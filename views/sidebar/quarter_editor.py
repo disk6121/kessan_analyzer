@@ -29,7 +29,7 @@ def render_quarter_editor(ticker,combined_data):
                 edited_perf_df = st.data_editor(
                     df_cumulative_input,
                     column_config={"Key": None}, # Key列を隠す
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True,
                     key=f"perf_editor_{ticker}" # 企業ごとに一意のキーにする
                 )
