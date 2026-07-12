@@ -42,7 +42,7 @@ def render_segment_editor(ticker,seg_by_quarter):
                         "Key": None,  # 内部識別キーを隠す
                         "Idx": None   # 配列インデックスを隠す
                     },
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True,
                     key=f"seg_global_editor_{ticker}"
                 )
