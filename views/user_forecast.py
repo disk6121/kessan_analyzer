@@ -56,7 +56,7 @@ def render_user_forecast(stock_meta):
             edited_df = st.data_editor(
                 forecast_df,
                 hide_index=True,
-                use_container_width=True,
+                width="stretch",
                 key=f"user_forecast_editor_{ticker}"
             )
 
@@ -70,7 +70,7 @@ def render_user_forecast(stock_meta):
 
         submitted = st.form_submit_button(
             " 💾 独自予想を更新",
-            use_container_width=True
+            width="stretch"
         )
 
     if submitted:
