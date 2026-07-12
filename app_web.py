@@ -12,6 +12,7 @@ from database.save_repository import save_analysis_data
 from database.load_repository import load_common_note
 from database.load_repository import load_analysis_data
 from database.load_repository import load_peer_summary
+from database.load_repository import get_latest_actual
 from services.analysis_loader import restore_analysis_to_session
 from services.analysis_loader import load_saved_reports_to_session
 from services.gemini_service import investigate_topic
@@ -271,7 +272,7 @@ if st.session_state.get("current_analysis"):
 # 【2-5】同業他社比較欄
     row_data, meta_row = load_analysis_data(tic)
     ap = analysis["meta"]["annual_performance"] or {}
-    current_year = ap.get("current_year_actual_or_forecast",{})
+    current_year = get_latest_actual(ap)
     annual_sales = float(current_year.get("revenue")or 0)
     annual_operating_income = float(current_year.get("operating_income")or 0)
     op_margin = (
