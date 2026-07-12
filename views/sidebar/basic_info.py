@@ -14,7 +14,7 @@ def render_basic_info(stock_meta):
                 stock_meta.get("exchange_name")
             ]
         })
-        edited_meta = st.data_editor(meta_df, hide_index=True, use_container_width=True, num_rows="fixed",disabled=["項目"], key="meta_editor")
+        edited_meta = st.data_editor(meta_df, hide_index=True, width="stretch", num_rows="fixed",disabled=["項目"], key="meta_editor")
 
         if edited_meta is not None:
             new_vals = edited_meta["値"].tolist()
