@@ -44,6 +44,7 @@ def render_annual_editor_past(stock_meta):
             annual_df_input,
             use_container_width=True,
             hide_index=True,
+            format="%,.0f"
             disabled=["項目"], # 項目名は編集不可
             key=f"annual_perf_editor_{ticker}"
         )
