@@ -101,6 +101,7 @@ def render_annual_editor(stock_meta):
         edited_annual_df = st.data_editor(
             annual_df_input,
             use_container_width=True,
+            format="%,.0f",
             hide_index=True,
             num_rows="dynamic",
             key=f"annual_perf_editor_{ticker}",
