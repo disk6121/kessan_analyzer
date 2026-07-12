@@ -129,6 +129,22 @@ def load_existing_quarter_data(ticker):
         }
     return None
 
+def get_latest_actual(annual_perf):
+    history = annual_perf.get("history", {})
+
+    if not history:
+        return {}
+
+    actual_years = [
+        int(y)
+        for y, d in history.items()
+        if d.get("type") == "actual"
+    ]
+
+    if not actual_years:
+        return {}
+
+    return history[str(max(actual_years))]
 
 
 def load_peer_summary(ticker):
@@ -141,7 +157,7 @@ def load_peer_summary(ticker):
       return None
 
     meta1 = load_json(meta_row["annual_perf_json"])
-    current = meta1.get("current_year_actual_or_forecast", {})
+    current = get_latest_actual(meta1)
     sales = float(current.get("revenue") or 0)
     op = float(current.get("operating_income") or 0)
 
