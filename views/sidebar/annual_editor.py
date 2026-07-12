@@ -42,7 +42,7 @@ def render_annual_editor_past(stock_meta):
         # データエディタの配置（数値のみユーザーに変更してもらう）
         edited_annual_df = st.data_editor(
             annual_df_input,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
             format="%,.0f",
             disabled=["項目"], # 項目名は編集不可
@@ -100,7 +100,7 @@ def render_annual_editor(stock_meta):
         # -------------------------
         edited_annual_df = st.data_editor(
             annual_df_input,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
             num_rows="dynamic",
             key=f"annual_perf_editor_{ticker}",
