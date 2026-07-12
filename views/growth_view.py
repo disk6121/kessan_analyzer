@@ -123,7 +123,7 @@ def render_growth_table_past(stock_meta):
     st.dataframe(
         styled_df,
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -215,7 +215,7 @@ def render_growth_table(stock_meta):
     st.dataframe(
         styled_df,
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -398,7 +398,7 @@ def render_progress_table(stock_meta, combined_data):
     st.dataframe(
         df.style.apply(style_table, axis=None),
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
     if stock_meta.get("net_income_forecast"):
