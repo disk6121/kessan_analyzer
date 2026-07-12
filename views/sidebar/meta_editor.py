@@ -37,7 +37,7 @@ def render_meta_editor(stock_meta):
             ]
         })
 
-        edited_meta = st.data_editor(edit_meta_df, use_container_width=True, hide_index=True, key=f"meta_editor_{ticker}")
+        edited_meta = st.data_editor(edit_meta_df, width="stretch", hide_index=True, key=f"meta_editor_{ticker}")
 
         # 💡 編集された値を stock_meta および ap にリアルタイム上書き
         if edited_meta is not None:
