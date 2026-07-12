@@ -68,7 +68,7 @@ def render_analysis_visuals(stock_meta, combined_data, seg_by_quarter):
 
             submitted = st.form_submit_button(
                 "💾 サイドバーの修正内容を反映 ",
-                use_container_width=True
+                width="stretch"
             )
 
         if submitted:
