@@ -10,6 +10,9 @@ import copy
 
 def merge_annual_performance(old_perf, new_perf):
 
+    st.write new_perf
+    st.stop
+    
     history = {}
 
     # -----------------------------
