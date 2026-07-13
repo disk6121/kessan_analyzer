@@ -147,6 +147,25 @@ def get_latest_actual(annual_perf):
     return history[str(max(actual_years))]
 
 
+
+def get_latest_forecast(annual_perf):
+
+    history = annual_perf.get("history", {})
+
+    forecast_years = [
+        int(y)
+        for y, d in history.items()
+        if d.get("type") == "forecast"
+    ]
+
+    if not forecast_years:
+        return {}
+
+    return history[str(max(forecast_years))]
+
+
+
+
 def load_peer_summary(ticker):
 
     """
