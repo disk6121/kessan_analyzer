@@ -2,6 +2,8 @@ import pandas as pd
 import streamlit as st
 import re
 
+from database.load_repository import get_latest_forecast
+
 
 def format_amount(value):
     if value is None:
@@ -283,7 +285,7 @@ def render_progress_table(stock_meta, combined_data):
     prior_data = combined_data.get(prior_key, {})
 
     ap = stock_meta.get("annual_performance", {})
-    forecast = ap.get("next_year_forecast", {})
+    forecast = get_latest_forecast(ap)
 
     metrics = [
         ("売上高", "revenue"),
@@ -402,9 +404,7 @@ def render_progress_table(stock_meta, combined_data):
     )
 
     if stock_meta.get("net_income_forecast"):
-        ap = stock_meta.get("annual_performance", {})
-        next_ap = ap.get("next_year_forecast", {})
-        net_income = next_ap.get("net_income", {})
+        net_income = forecast.get("net_income", {})
 
         if stock_meta.get("net_income_forecast")/1000000  != net_income:
             st.write("★★★業績予想の修正あり★★★")
