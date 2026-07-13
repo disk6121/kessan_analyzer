@@ -167,7 +167,7 @@ def manage_analysis(uploaded_files,api_key):
 
             # -- 通期決算・通期予想 --
             old_annual_performance = old_data["annual_perf"]
-            if any(q in analyze_period for q in ["1Q", "2Q", "3Q"]):
+            if any(q in analyzed_period for q in ["1Q", "2Q", "3Q"]):
                 # 1～3Qは通期データを更新しない
                 if old_annual_performance:
                     analysis["meta"]["annual_performance"] = old_annual_performance
