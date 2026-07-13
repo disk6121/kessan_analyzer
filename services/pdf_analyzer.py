@@ -125,75 +125,8 @@ def analyze_pdfs(
                     if meta.get("eps_diluted_yen") is not None: stock_meta["eps_diluted"] = float(meta["eps_diluted_yen"])
                        
                     if res_json.get("annual_performance"):
-
-                        new_ap = res_json["annual_performance"]
-
-                        # 最初のファイル処理時のみDBの既存データを読み込む
-                        if index == 0:
-                            stock_meta["annual_performance"] = load_company(stock_meta["ticker"])
-
-                        # 今回読み込んでいるPDFが4Qかどうか
-                        current_pdf_is_4q = (q == "4Q")
-
-                        for period_key in [
-                            "prior_year_actual",
-                            "current_year_actual_or_forecast",
-                            "next_year_forecast"
-                        ]:
-
-                            if period_key not in new_ap:
-                                continue
-
-                            if not isinstance(new_ap[period_key], dict):
-                                continue
-
-                            if period_key not in stock_meta["annual_performance"]:
-                                stock_meta["annual_performance"][period_key] = {}
-
-                            existing_period = stock_meta["annual_performance"][period_key]
-                            new_period = new_ap[period_key]
-
-                            #
-                            # current_year_actual_or_forecast のみ4Q優先
-                            #
-                            if period_key == "current_year_actual_or_forecast":
-
-                                existing_year = existing_period.get("fiscal_year")
-                                new_year = new_period.get("fiscal_year")
-
-                                # 同じ年度について既に4Q実績が保存されている場合、
-                                # 1Q～3Qの予想値で上書きしない
-                                if (
-                                    existing_period.get("_source_quarter") == "4Q"
-                                    and not current_pdf_is_4q
-                                    and existing_year == new_year
-                                ):
-                                    continue
-
-                            #
-                            # 項目を保存
-                            #
-                            for metric in [
-                                "fiscal_year",
-                                "revenue",
-                                "gross_profit",
-                                "operating_income",
-                                "ordinary_income",
-                                "net_income"
-                            ]:
-
-                                new_val = new_period.get(metric)
-
-                                if new_val is None:
-                                    continue
-
-                                if metric == "fiscal_year":
-                                    stock_meta["annual_performance"][period_key][metric] = int(new_val)
-                                else:
-                                    stock_meta["annual_performance"][period_key][metric] = float(new_val)
-
-                            # このデータがどの四半期由来かを記録
-                            stock_meta["annual_performance"][period_key]["_source_quarter"] = q
+                            if q == "4Q":
+                                    stock_meta["annual_performance"] = res_json["annual_performance"]
 
             except Exception as e:
                 st.error(f"❌ {file.name} の処理中にエラー: {e}")
