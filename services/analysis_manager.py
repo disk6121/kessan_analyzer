@@ -42,13 +42,18 @@ def merge_annual_performance(old_perf, new_perf):
     # ② 今回解析した実績
     # -----------------------------
     if new_perf:
-        current = new_perf.get("current_year_actual_or_forecast")
-        if current and current.get("fiscal_year"):
-            y = str(current["fiscal_year"])
-            tmp = copy.deepcopy(current)
-            tmp["type"] = "actual"
-            history[y] = tmp
+        for key in [
+            "prior_year_actual",
+            "current_year_actual_or_forecast"
+        ]:
+            item = new_perf.get(key)
 
+            if item and item.get("fiscal_year"):
+                tmp = copy.deepcopy(item)
+                tmp["type"] = "actual"
+                history[str(item["fiscal_year"])] = tmp
+
+        
         # -------------------------
         # ③ 来期予想
         # -------------------------
