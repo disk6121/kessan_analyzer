@@ -186,8 +186,8 @@ def load_peer_summary(ticker):
         [k for k, v in meta1.items() if v.get("is_forecast") != True]
     )
 
-    current_year = ap[actual_years[-1]] if actual_years else {}
-    previous_year = ap[actual_years[-2]] if len(actual_years) >= 2 else {}
+    current_year = meta1[actual_years[-1]] if actual_years else {}
+    previous_year = meta1[actual_years[-2]] if len(actual_years) >= 2 else {}
 
     annual_sales = float(current_year.get("revenue") or 0)
     previous_sales = float(previous_year.get("revenue") or 0)
@@ -231,8 +231,8 @@ def load_peer_summary(ticker):
       "PER": f"{float(meta_row["per"]):.2f}" if meta_row["per"] else "",
       "独自予想PER": f"{float(user_fc_per):.2f}" if user_fc_per else "",
       "PBR": f"{float(meta_row["pbr"]):.2f}" if meta_row["pbr"] else "",
-      "売上": str(int(annual_sales)) if annual_sales else "",
+      "通期実績売上": str(int(annual_sales)) if annual_sales else "",
       "売上成長率": f"{sales_growth:.1f}" if sales_growth else "",
-      "営業利益率": margin
+      "通期実績営業利益率": margin
     }
 
