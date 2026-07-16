@@ -10,6 +10,7 @@ from database.save_repository import save_companies_memo
 from database.save_repository import save_common_note
 from database.save_repository import save_analysis_data
 from database.load_repository import load_common_note
+from views.peer_comparison import render_peer_comparison
 from services.analysis_loader import restore_analysis_to_session
 from services.analysis_loader import load_saved_reports_to_session
 from services.gemini_service import investigate_topic
@@ -259,7 +260,7 @@ if st.session_state.get("current_analysis"):
 
 
 # 【2-5】同業他社比較欄
-    
+    st.write("##### ✍️ 同業他社比較")
     render_peer_comparison(tic=tic, comp=comp, analysis=analysis)
 
 
