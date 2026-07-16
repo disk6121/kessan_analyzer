@@ -50,7 +50,6 @@ def render_peer_comparison(tic,comp,analysis):
         user_fc_eps = (user_fc_net_income / ns_shares) * 1000000
         user_fc_per = price / user_fc_eps
 
-    st.write("##### ✍️ 同業他社比較")
     if (
         "peer_comparison_df" not in st.session_state
         or not isinstance(st.session_state.peer_comparison_df, pd.DataFrame)
