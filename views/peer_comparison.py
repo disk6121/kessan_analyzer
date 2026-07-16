@@ -11,6 +11,12 @@ def load_json(value):
     return json.loads(value)   # SQLite
 
 
+def safe_float(x):
+    try:
+        return float(x)
+    except:
+        return None
+
 
 def render_peer_comparison(tic,comp,analysis):
     row_data, meta_row = load_analysis_data(tic)
@@ -27,11 +33,6 @@ def render_peer_comparison(tic,comp,analysis):
     else:
         financial_meta = {} 
     exchange_name = financial_meta.get("exchange_name") if financial_meta else "不明"
-    def safe_float(x):
-        try:
-            return float(x)
-        except:
-            return None
     shares_issued = safe_float(analysis["meta"].get("shares_issued")) or 0
     treasury_shares = safe_float(analysis["meta"].get("treasury_shares")) or 0
     ns_shares = shares_issued - treasury_shares
