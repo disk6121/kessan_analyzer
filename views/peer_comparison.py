@@ -1,4 +1,13 @@
+from database.load_repository import get_latest_actual
+from database.load_repository import load_peer_summary
 
+
+def load_json(value):
+    if value is None:
+        return {}
+    if isinstance(value, dict):
+        return value      # Supabase
+    return json.loads(value)   # SQLite
 
 
 
