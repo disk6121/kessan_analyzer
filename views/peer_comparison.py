@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 
-from database.load_repository import get_latest_actual
 from database.load_repository import load_peer_summary
 from database.load_repository import load_analysis_data
 
