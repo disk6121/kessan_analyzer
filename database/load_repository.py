@@ -181,13 +181,13 @@ def load_peer_summary(ticker):
       return None
 
     meta1 = load_json(meta_row["annual_perf_json"])
-
+    history = meta1.get("history", {})
     actual_years = sorted(
-        [k for k, v in meta1.items() if v.get("is_forecast") != True]
+        [k for k, v in history.items() if v.get("type") == "actual"]
     )
 
-    current_year = meta1[actual_years[-1]] if actual_years else {}
-    previous_year = meta1[actual_years[-2]] if len(actual_years) >= 2 else {}
+    current_year = history[actual_years[-1]] if actual_years else {}
+    previous_year = history[actual_years[-2]] if len(actual_years) >= 2 else {}
 
     annual_sales = float(current_year.get("revenue") or 0)
     previous_sales = float(previous_year.get("revenue") or 0)
