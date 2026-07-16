@@ -24,12 +24,13 @@ def render_peer_comparison(tic,comp,analysis):
     row_data, meta_row = load_analysis_data(tic)
 
     ap = analysis["meta"]["annual_performance"] or {}
+    history = ap.get("history", {})
     actual_years = sorted(
-        [k for k, v in ap.items() if v.get("is_forecast") != True]
+        [k for k, v in history.items() if v.get("type") == "actual"]
     )
 
-    current_year = ap[actual_years[-1]] if actual_years else {}
-    previous_year = ap[actual_years[-2]] if len(actual_years) >= 2 else {}
+    current_year = history[actual_years[-1]] if actual_years else {}
+    previous_year = history[actual_years[-2]] if len(actual_years) >= 2 else {}
 
     annual_sales = float(current_year.get("revenue") or 0)
     annual_operating_income = float(current_year.get("operating_income") or 0)
