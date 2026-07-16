@@ -10,9 +10,6 @@ from database.save_repository import save_companies_memo
 from database.save_repository import save_common_note
 from database.save_repository import save_analysis_data
 from database.load_repository import load_common_note
-from database.load_repository import load_analysis_data
-from database.load_repository import load_peer_summary
-from database.load_repository import get_latest_actual
 from services.analysis_loader import restore_analysis_to_session
 from services.analysis_loader import load_saved_reports_to_session
 from services.gemini_service import investigate_topic
@@ -23,14 +20,6 @@ from views.analysis_view import render_analysis_visuals
 
 import json
 import streamlit as st
-
-def load_json(value):
-    if value is None:
-        return {}
-    if isinstance(value, dict):
-        return value      # Supabase
-    return json.loads(value)   # SQLite
-
 
 # ---------------------------------------------------------
 # タイトル
