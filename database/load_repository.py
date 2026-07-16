@@ -232,7 +232,7 @@ def load_peer_summary(ticker):
       "独自予想PER": f"{float(user_fc_per):.2f}" if user_fc_per else "",
       "PBR": f"{float(meta_row["pbr"]):.2f}" if meta_row["pbr"] else "",
       "通期実績売上": str(int(annual_sales)) if annual_sales else "",
-      "売上成長率": f"{sales_growth:.1f}" if sales_growth else "",
+      "売上成長率": f"{sales_growth:.1f}%" if sales_growth else "",
       "通期実績営業利益率": margin
     }
 
