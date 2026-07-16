@@ -164,6 +164,11 @@ def get_latest_forecast(annual_perf):
     return history[str(max(forecast_years))]
 
 
+def safe_float(x):
+    try:
+        return float(x)
+    except:
+        return None
 
 
 def load_peer_summary(ticker):
@@ -176,19 +181,28 @@ def load_peer_summary(ticker):
       return None
 
     meta1 = load_json(meta_row["annual_perf_json"])
-    current = get_latest_actual(meta1)
-    sales = float(current.get("revenue") or 0)
-    op = float(current.get("operating_income") or 0)
+
+    actual_years = sorted(
+        [k for k, v in meta1.items() if v.get("is_forecast") != True]
+    )
+
+    current_year = ap[actual_years[-1]] if actual_years else {}
+    previous_year = ap[actual_years[-2]] if len(actual_years) >= 2 else {}
+
+    annual_sales = float(current_year.get("revenue") or 0)
+    previous_sales = float(previous_year.get("revenue") or 0)
+    annual_operating_income = float(current_year.get("operating_income") or 0)
+
+    sales_growth = (
+        (annual_sales - previous_sales) / previous_sales * 100
+        if previous_sales > 0
+        else None
+    )
 
     margin = ""
-    if sales:
-      margin = f"{op/sales*100:.1f}%"
+    if annual_sales:
+      margin = f"{annual_operating_income/annual_sales*100:.1f}%"
 
-    def safe_float(x):
-        try:
-            return float(x)
-        except:
-            return None
     meta2 = load_json(meta_row["financial_meta_json"])
     shares_issued = safe_float(meta2.get("shares_issued")) or 0
     treasury_shares = safe_float(meta2.get("treasury_shares")) or 0
@@ -217,7 +231,7 @@ def load_peer_summary(ticker):
       "PER": f"{float(meta_row["per"]):.2f}" if meta_row["per"] else "",
       "独自予想PER": f"{float(user_fc_per):.2f}" if user_fc_per else "",
       "PBR": f"{float(meta_row["pbr"]):.2f}" if meta_row["pbr"] else "",
-      "通期実績売上": str(int(sales)) if sales else "",
+      "通期実績売上": str(int(annual_sales)) if annual_sales else "",
       "通期実績営業利益率": margin
     }
 
