@@ -80,9 +80,9 @@ def render_peer_comparison(tic,comp,analysis):
             "PER": round(float(meta_row["per"]), 2) if meta_row and meta_row["per"] is not None else "",
             "独自予想PER": round(float(user_fc_per), 2) if user_fc_per is not None else "",
             "PBR": round(float(meta_row["pbr"]), 2) if meta_row and meta_row["pbr"] is not None else "",
-            "売上": int(annual_sales) if annual_sales else "",
+            "通期実績売上": int(annual_sales) if annual_sales else "",
             "売上成長率": f"{sales_growth:.1f}%" if sales_growth is not None else "",
-            "営業利益率": f"{op_margin:.1f}%" if op_margin is not None else ""
+            "通期実績営業利益率": f"{op_margin:.1f}%" if op_margin is not None else ""
         }
 
         empty_rows =[{
@@ -92,9 +92,9 @@ def render_peer_comparison(tic,comp,analysis):
             "PER": "",
             "独自予想PER": "",
             "PBR": "",
-            "売上": "",
+            "通期実績売上": "",
             "売上成長率": "",
-            "営業利益率": ""
+            "通期実績営業利益率": ""
         } for _ in range(5)]
 
         st.session_state.peer_comparison_df = pd.DataFrame(
@@ -111,9 +111,9 @@ def render_peer_comparison(tic,comp,analysis):
         "PER": f"{float(meta_row["per"]):.2f}" if meta_row and meta_row["per"] not in (None, "") else "",
         "独自予想PER": (f"{user_fc_per:.2f}" if user_fc_per is not None else ""),
         "PBR": f"{float(meta_row["pbr"]):.2f}" if meta_row and meta_row["pbr"] not in (None, "") else "",
-        "売上": str(int(annual_sales)) if annual_sales else "",
+        "通期実績売上": str(int(annual_sales)) if annual_sales else "",
         "売上成長率": f"{sales_growth:.1f}%" if sales_growth is not None else "",
-        "営業利益率": f"{op_margin:.1f}%" if op_margin is not None else ""
+        "通期実績営業利益率": f"{op_margin:.1f}%" if op_margin is not None else ""
         }
 
         edited_df = st.data_editor(
@@ -142,9 +142,9 @@ def render_peer_comparison(tic,comp,analysis):
                     edited_df.at[i, "独自予想PER"] = peer["独自予想PER"]
                     edited_df.at[i, "会社名"] = peer["会社名"]
                     edited_df.at[i, "上場区分"] = peer["上場区分"]
-                    edited_df.at[i, "売上"] = peer["売上"]
+                    edited_df.at[i, "通期実績売上"] = peer["通期実績売上"]
                     edited_df.at[i, "売上成長率"] = peer["売上成長率"]
-                    edited_df.at[i, "営業利益率"] = peer["営業利益率"]
+                    edited_df.at[i, "通期実績営業利益率"] = peer["通期実績営業利益率"]
 
         st.session_state.peer_comparison_df = edited_df.copy()
         st.success("同業他社比較表を更新しました")
