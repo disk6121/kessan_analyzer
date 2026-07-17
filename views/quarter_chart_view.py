@@ -9,7 +9,7 @@ from matplotlib import font_manager
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-def render_quarter_chare(combined_data):
+def render_quarter_chart(combined_data,kpi_data=None,selected_kpi=None):
 
     font_path = Path(__file__).resolve().parent.parent / "fonts" / "NotoSansJP-VariableFont_wght.ttf"
     font_manager.fontManager.addfont(str(font_path))
@@ -29,7 +29,28 @@ def render_quarter_chare(combined_data):
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
    
         # 売上グラフ
-        ax1.bar(df_8q_clean["Period"], df_8q_clean["Revenue"], color="royalblue", alpha=0.8, width=0.5)
+        ax1.bar(df_8q_clean["Period"], df_8q_clean["Revenue"], color="royalblue", alpha=0.8, width=0.5, label="売上高")
+
+        # -----------------------
+        # KPI折れ線
+        # -----------------------
+        if kpi_data and selected_kpi:
+            kpi_values = []
+            for period in df_8q_clean["Period"]:
+                kpi_values.append(
+                    kpi_data.get(period, {}).get(selected_kpi)
+                )
+            ax1_twin = ax1.twinx()
+            ax1_twin.plot(
+                df_8q_clean["Period"],
+                kpi_values,
+                color="crimson",
+                marker="o",
+                linewidth=2,
+                label=selected_kpi
+            )
+            ax1_twin.set_ylabel(selected_kpi)
+        
         ax1.set_title("単四半期 売上高の推移", weight='bold')
         ax1.grid(axis='y', linestyle='--')
         latest_idx = len(df_8q_clean) - 1
