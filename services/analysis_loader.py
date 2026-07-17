@@ -60,11 +60,19 @@ def prepare_analysis_for_view(ticker):
         financial_meta = {}
         if meta_row["financial_meta_json"]:
             financial_meta = load_json(meta_row["financial_meta_json"])
+            
         annual_perf = {}
         if meta_row["annual_perf_json"]:
             annual_perf = load_json(meta_row["annual_perf_json"])
             annual_perf = convert_annual_performance(annual_perf)
-        
+
+        kpi_data = {}
+        if meta_row.get("kpi_json"):
+            try:
+                kpi_data = load_json(meta_row["kpi_json"])
+            except Exception:
+                kpi_data = {}
+
         user_forecast = {}
         if meta_row["user_forecast_json"]:
                 try:
@@ -103,6 +111,7 @@ def prepare_analysis_for_view(ticker):
             "eps_diluted": financial_meta.get("eps_diluted"),
             "annual_performance": annual_perf,
             "user_forecast": user_forecast,
+            "kpi_data": kpi_data,
             "net_income_forecast": financial_meta.get("net_income_forecast", 0),
             "net_assets": financial_meta.get("net_assets", 0),
             "non_controlling_interests": financial_meta.get("non_controlling_interests", 0),           
