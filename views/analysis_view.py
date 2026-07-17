@@ -7,6 +7,7 @@ from views.stock_view import render_stock_metrics
 from views.financial_view import render_financial_metrics
 from views.quarter_chart_view import render_quarter_chare
 from views.segment_view import render_segment_analysis
+from views.kpi_view import render_kpi_editor
 from views.sidebar.basic_info import render_basic_info
 from views.sidebar.annual_editor import render_annual_editor
 from views.sidebar.meta_editor import render_meta_editor
@@ -44,6 +45,8 @@ def render_analysis_visuals(stock_meta, combined_data, seg_by_quarter):
     render_stock_metrics(stock_meta)
     
     render_financial_metrics(stock_meta)
+
+    stock_meta = render_kpi_editor(stock_meta, combined_data)
     
     render_quarter_chare(combined_data)
 
