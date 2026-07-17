@@ -33,6 +33,7 @@ def prepare_analysis_data(
         "eps_diluted": meta.get("eps_diluted")
     }
     annual_perf_pack = meta.get("annual_performance", {})
+    kpi_pack = replace_nan(meta.get("kpi_data", {}))
     reports_json_str = json.dumps(reports_dict, ensure_ascii=False)
     peer_comparison_json = (
         st.session_state.peer_comparison_df.to_json(
@@ -48,6 +49,7 @@ def prepare_analysis_data(
         "today_str": today_str,
         "financial_pack": financial_pack,
         "annual_perf_pack": annual_perf_pack,
+        "kpi_pack": kpi_pack,
         "reports_json_str": reports_json_str,
         "peer_comparison_json": peer_comparison_json,
         "deep_dive_memo": deep_dive_memo
@@ -112,6 +114,7 @@ def save_company(prepared):
                 "investment_memo" : investment_memo,
                 "financial_meta_json" : financial_pack,
                 "annual_perf_json" : prepared["annual_perf_pack"],
+                "kpi_json": prepared["kpi_pack"],
                 "buy_target" : buy_target,
                 "sell_target" : sell_target,
                 "user_forecast_json" : user_forecast_json
