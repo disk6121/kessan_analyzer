@@ -76,19 +76,28 @@ def render_kpi_editor(stock_meta, combined_data):
     # -------------------------------
     # 編集
     # -------------------------------
+    column_config = {
+        "KPI": st.column_config.TextColumn(
+            "KPI",
+            required=True
+        )
+    }
+
+    for q in quarters:
+        column_config[q] = st.column_config.NumberColumn(
+            q,
+            step=1
+        )
+
     edited_df = st.data_editor(
         df,
         hide_index=True,
         use_container_width=True,
         num_rows="dynamic",
         key="kpi_editor",
-        column_config={
-            "KPI": st.column_config.TextColumn(
-                "KPI",
-                required=True
-            )
-        }
+        column_config=column_config
     )
+
 
     # -------------------------------
     # 保存
@@ -115,6 +124,15 @@ def render_kpi_editor(stock_meta, combined_data):
                 value = row[q]
 
                 if pd.notna(value):
+                    try:
+                        value = float(value)
+                    except (ValueError, TypeError):
+                        continue
+
+                    # 整数ならintで保存
+                    if value.is_integer():
+                        value = int(value)
+
                     new_kpi[q][item] = value
 
         stock_meta["kpi_data"] = new_kpi
