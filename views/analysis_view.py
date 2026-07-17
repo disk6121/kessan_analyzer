@@ -46,9 +46,11 @@ def render_analysis_visuals(stock_meta, combined_data, seg_by_quarter):
     
     render_financial_metrics(stock_meta)
 
+    st.divider()
+    
     stock_meta = render_kpi_editor(stock_meta, combined_data)
     
-    render_quarter_chare(combined_data)
+    render_quarter_chart(combined_data)
 
     render_segment_analysis(df_pivot_rev, df_pivot_prof)
 
