@@ -49,8 +49,19 @@ def render_analysis_visuals(stock_meta, combined_data, seg_by_quarter):
     st.divider()
     
     stock_meta = render_kpi_editor(stock_meta, combined_data)
+
+    kpi_data = stock_meta.get("kpi_data", {})
+    if kpi_data:
+        first_q = next(iter(kpi_data.values()), {})
+        kpi_items = list(first_q.keys())
+        selected_kpi = st.selectbox(
+            "表示するKPI",
+            kpi_items
+        )
+    else:
+        selected_kpi = None
     
-    render_quarter_chart(combined_data)
+    render_quarter_chart(combined_data,stock_meta.get("kpi_data",{}),selected_kpi)
 
     render_segment_analysis(df_pivot_rev, df_pivot_prof)
 
