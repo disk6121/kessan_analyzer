@@ -108,6 +108,7 @@ def load_existing_quarter_data(ticker):
         .table("companies")
         .select(
             "annual_perf_json, "
+            "kpi_json, "
             "user_forecast_json"
         )
         .eq("ticker", ticker)
@@ -125,6 +126,7 @@ def load_existing_quarter_data(ticker):
             "deep_dive_memo": row1.get("deep_dive_memo") or "",
             "peer_comparison": to_dict(row1.get("peer_comparison_json")),
             "annual_perf": to_dict(row2.get("annual_perf_json")),
+            "kpi_data": to_dict(row2.get("kpi_json")),
             "user_forecast": to_dict(row2.get("user_forecast_json"))
         }
     return None
