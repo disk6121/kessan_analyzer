@@ -35,7 +35,10 @@ def render_quarter_chart(combined_data,kpi_data=None,selected_kpi=None):
         # KPI折れ線
         # -----------------------
         if kpi_data and selected_kpi:
-            kpi_values = []
+            kpi_values = [
+                pd.to_numeric(v, errors="coerce")
+                for v in kpi_values
+            ]
             for quarter in df_8q_clean["QuarterKey"]:
                 kpi_values.append(
                     kpi_data.get(quarter, {}).get(selected_kpi)
