@@ -38,7 +38,7 @@ def render_quarter_chart(combined_data,kpi_data=None,selected_kpi=None):
             kpi_values = []
             for period in df_8q_clean["QuarterKey"]:
                 kpi_values.append(
-                    kpi_data.get(quarter, {}).get(selected_kpi)
+                    kpi_data.get(quarters, {}).get(selected_kpi)
                 )
             ax1_twin = ax1.twinx()
             ax1_twin.plot(
