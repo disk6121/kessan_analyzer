@@ -44,7 +44,7 @@ def process_to_8quarters(combined_data):
    
         records.append({
             "QuarterKey": key,
-            "Period": f"{year_str}／\n{q_str}",
+            "Period": f"{year_str}/\n{q_str}",
             "Year": year,
             "Quarter": q_str,
             "Revenue": rev,
