@@ -86,7 +86,7 @@ def render_kpi_editor(stock_meta, combined_data):
     for q in quarters:
         column_config[q] = st.column_config.NumberColumn(
             q,
-            step=1
+            format="%.1f"
         )
 
     edited_df = st.data_editor(
