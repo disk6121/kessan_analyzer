@@ -5,7 +5,7 @@ from views.growth_view import render_growth_table
 from views.growth_view import render_progress_table
 from views.stock_view import render_stock_metrics
 from views.financial_view import render_financial_metrics
-from views.quarter_chart_view import render_quarter_chare
+from views.quarter_chart_view import render_quarter_chart
 from views.segment_view import render_segment_analysis
 from views.kpi_view import render_kpi_editor
 from views.sidebar.basic_info import render_basic_info
