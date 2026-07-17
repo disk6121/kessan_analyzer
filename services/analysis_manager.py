@@ -189,6 +189,11 @@ def manage_analysis(uploaded_files,api_key):
             if old_user_forecast:
                 analysis["meta"]["user_forecast"] = old_user_forecast
 
+            # ------ KPI復元 ------
+            old_kpi_data = old_data.get("kpi_data", {})
+            if old_kpi_data:
+                analysis["meta"]["kpi_data"] = old_kpi_data
+        
         else:
             st.session_state.reports_dict = {}
             st.session_state.deep_dive_memo_input = ""
