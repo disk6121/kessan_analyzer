@@ -174,7 +174,7 @@ def render_peer_comparison(tic,comp,analysis):
             if analysis is None:
                 st.warning(f"{company} はまだ分析されていません。")
             else:
-                restore_analysis_to_session(analysis)
+                restore_analysis_to_session(ticker,analysis)
                 st.session_state.current_analysis = analysis
                 st.rerun()
 
