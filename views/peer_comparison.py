@@ -153,21 +153,18 @@ def render_peer_comparison(tic,comp,analysis):
         st.success("同業他社比較表を更新しました")
         st.rerun()
 
-    st.markdown("#### 📂 保存済みの会社を開く")
-    peer_df = st.session_state.peer_comparison_df
 
+    st.markdown("##### 他社へ移動")
+    peer_df = st.session_state.peer_comparison_df
+    cols = st.columns(5)
+    i = 0
     for _, row in peer_df.iterrows():
         ticker = str(row["証券コード"]).strip()
         company = str(row["会社名"]).strip()
-        # 自社・空欄は除外
         if not ticker or ticker == tic:
             continue
-
-        if st.button(
-            f"▶ {company}",
-            key=f"open_peer_{ticker}",
-            use_container_width=True,
-        ):
-            st.session_state.selected_ticker = ticker
-            st.rerun()
-
+        with cols[i % 5]:
+            if st.button(company, key=f"peer_{ticker}", use_container_width=True):
+                st.session_state.selected_ticker = ticker
+                st.rerun()
+        i += 1
