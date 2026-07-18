@@ -154,7 +154,7 @@ def render_peer_comparison(tic,comp,analysis):
         st.rerun()
 
 
-    st.markdown("####### リンク")
+    st.markdown("同業他社リンク")
     peer_df = st.session_state.peer_comparison_df
     cols = st.columns(5)
     i = 0
