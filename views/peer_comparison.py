@@ -168,13 +168,6 @@ def render_peer_comparison(tic,comp,analysis):
             key=f"open_peer_{ticker}",
             use_container_width=True,
         ):
-
-            analysis = prepare_analysis_for_view(ticker)
-
-            if analysis is None:
-                st.warning(f"{company} はまだ分析されていません。")
-            else:
-                restore_analysis_to_session(ticker,analysis)
-                st.session_state.current_analysis = analysis
-                st.rerun()
+            st.session_state.selected_ticker = ticker
+            st.rerun()
 
