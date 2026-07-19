@@ -23,7 +23,7 @@ def render_quarter_chart(combined_data,kpi_data=None,selected_kpi=None):
         df_8q_clean = pd.DataFrame()
 
     if not df_8q_clean.empty:
-        with st.expander("📈 四半期売上・営業利益推移）"):
+        with st.expander("📈 四半期売上・営業利益推移"):
             plt.rcParams["font.family"] = "Noto Sans JP"
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
    
