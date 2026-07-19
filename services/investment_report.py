@@ -3,13 +3,13 @@
 import json
 from google import genai
 from google.genai import types
-
+from database.load_repository import load_analysis_data
 
 def generate_investment_report(api_key,ticker):
 
+    row_data, meta_row = load_analysis_data(ticker)
     
-    
-    combined_data,
+    combined_data = 
     annual_performance,
     financial_meta,
     segment_analysis,
