@@ -45,8 +45,6 @@ def render_analysis_visuals(stock_meta, combined_data, seg_by_quarter):
     render_stock_metrics(stock_meta)
     
     render_financial_metrics(stock_meta)
-
-    st.divider()
     
     stock_meta = render_kpi_editor(stock_meta, combined_data)
 
