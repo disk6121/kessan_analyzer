@@ -85,7 +85,7 @@ def generate_investment_report(api_key,ticker):
 
   必ずJSONのみ返してください。
 
-  {
+  {{
     "growth": {
       "title": "成長性",
       "comment": "",
@@ -140,7 +140,7 @@ def generate_investment_report(api_key,ticker):
     },
 
     "summary": ""
-  }
+  }}
 
   =========================
   【各項目の作成ルール】
