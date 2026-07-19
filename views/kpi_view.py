@@ -89,7 +89,7 @@ def render_kpi_editor(stock_meta, combined_data):
         # -------------------------------
         if st.button(
             "💾 KPI保存",
-            use_container_width=True,
+            width="stretch",
             key="save_kpi"
         ):
 
