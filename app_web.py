@@ -222,48 +222,48 @@ if st.session_state.get("current_analysis"):
 
 # 【2-2】AI定型調査     
     st.divider()
-    st.subheader("🔍 Webリアルタイム深掘り調査")
+    with st.expander("🔍 Webリアルタイム深掘り調査")
    
-    col_b1, col_b2 = st.columns(2)
-    col_b3, col_b4 = st.columns(2)
-    col_b5, col_b6 = st.columns(2)
-    col_b7, col_b8 = st.columns(2)
-    clicked_topic = None
-    if col_b1.button("🏢 事業概要", width="stretch"): clicked_topic = "事業概要"
-    if col_b2.button("📈 増収減収要因", width="stretch"): clicked_topic = "増収減収要因"
-    if col_b3.button("💰 増益減益要因", width="stretch"): clicked_topic = "増益減益要因"
-    if col_b4.button("🏆 競争優位性", width="stretch"): clicked_topic = "競争優位性"
-    if col_b5.button("🚀 成長戦略", width="stretch"): clicked_topic = "成長戦略"
-    if col_b6.button("🌏 市場環境", width="stretch"): clicked_topic = "市場環境"
-    if col_b7.button("⚠️ 事業リスク", width="stretch"): clicked_topic = "事業リスク"
-    if col_b8.button("📊 重要KPI", width="stretch"): clicked_topic = "重要KPI"
+        col_b1, col_b2 = st.columns(2)
+        col_b3, col_b4 = st.columns(2)
+        col_b5, col_b6 = st.columns(2)
+        col_b7, col_b8 = st.columns(2)
+        clicked_topic = None
+        if col_b1.button("🏢 事業概要", width="stretch"): clicked_topic = "事業概要"
+        if col_b2.button("📈 増収減収要因", width="stretch"): clicked_topic = "増収減収要因"
+        if col_b3.button("💰 増益減益要因", width="stretch"): clicked_topic = "増益減益要因"
+        if col_b4.button("🏆 競争優位性", width="stretch"): clicked_topic = "競争優位性"
+        if col_b5.button("🚀 成長戦略", width="stretch"): clicked_topic = "成長戦略"
+        if col_b6.button("🌏 市場環境", width="stretch"): clicked_topic = "市場環境"
+        if col_b7.button("⚠️ 事業リスク", width="stretch"): clicked_topic = "事業リスク"
+        if col_b8.button("📊 重要KPI", width="stretch"): clicked_topic = "重要KPI"
     
-    comp = analysis["meta"]["company_name"]
-    tic = analysis["meta"]["ticker"]
+        comp = analysis["meta"]["company_name"]
+        tic = analysis["meta"]["ticker"]
 
-    if clicked_topic:
-        result = investigate_topic(api_key,clicked_topic,comp,tic)
-        st.session_state.reports_dict[clicked_topic] = result
+        if clicked_topic:
+            result = investigate_topic(api_key,clicked_topic,comp,tic)
+            st.session_state.reports_dict[clicked_topic] = result
 
 # 【2-3】AI自由調査
-    st.write("##### ✍️ 自由なテーマでGeminiに調査を依頼する")
-    custom_query = st.text_input(
-        label="調べたい内容を入力してください（例: 最新の株価材料や新製品の評判、競合他社との違いなど）",
-        placeholder=f"例: {comp}の最近の対話型AIに関するプレスリリースや、市場での評価について教えてください。",
-        key=f"custom_query_input_{tic}"
-    )
+        st.write("##### ✍️ 自由なテーマでGeminiに調査を依頼する")
+        custom_query = st.text_input(
+            label="調べたい内容を入力してください（例: 最新の株価材料や新製品の評判、競合他社との違いなど）",
+            placeholder=f"例: {comp}の最近の対話型AIに関するプレスリリースや、市場での評価について教えてください。",
+            key=f"custom_query_input_{tic}"
+        )
    
-    if st.button("🔍 自由記述でWebリアルタイム調査を実行", type="secondary", width="stretch"):
-        result = investigate_custom_query(api_key, comp, tic, custom_query)
-        st.session_state.reports_dict["自由カスタム調査"] = result
+        if st.button("🔍 自由記述でWebリアルタイム調査を実行", type="secondary", width="stretch"):
+            result = investigate_custom_query(api_key, comp, tic, custom_query)
+            st.session_state.reports_dict["自由カスタム調査"] = result
 
-    # --- 調査結果の表示エリア ---
-    has_any_report = False
-    for label, report_content in st.session_state.reports_dict.items():
-        if report_content:
-            has_any_report = True
-            st.write(f"##### 📝 【{label}】の調査結果")
-            st.success(report_content)
+        # --- 調査結果の表示エリア ---
+        has_any_report = False
+        for label, report_content in st.session_state.reports_dict.items():
+            if report_content:
+                has_any_report = True
+                st.write(f"##### 📝 【{label}】の調査結果")
+                st.success(report_content)
 
 # 【2-4】メモ欄
     st.write("##### ✍️ 調査メモ・考察（自由記述欄）")
