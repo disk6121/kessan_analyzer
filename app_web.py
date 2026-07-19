@@ -265,7 +265,13 @@ if st.session_state.get("current_analysis"):
                 st.write(f"##### 📝 【{label}】の調査結果")
                 st.success(report_content)
 
-# 【2-4】メモ欄
+
+# 【2-4】同業他社比較欄
+    with st.expander("##### ✍️ 同業他社比較"):
+        render_peer_comparison(tic=tic, comp=comp, analysis=analysis)
+
+    
+# 【2-5】メモ欄
     st.write("##### ✍️ 調査メモ・考察（自由記述欄）")
     if "deep_dive_memo_input" not in st.session_state:
         st.session_state.deep_dive_memo_input = ""
@@ -279,10 +285,7 @@ if st.session_state.get("current_analysis"):
     st.session_state.deep_dive_memo = user_memo
 
 
-# 【2-5】同業他社比較欄
-    st.write("##### ✍️ 同業他社比較")
-    render_peer_comparison(tic=tic, comp=comp, analysis=analysis)
-
+    
 
 # 【2-6】分析結果を保存
     st.divider()
