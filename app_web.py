@@ -272,9 +272,12 @@ if st.session_state.get("current_analysis"):
 
 
 # 【2-5】AIレポート欄
-#   st.write("##### ✍️ AIレポート")
-#   if st.button("🌟 この分析結果をもとにAIレポートを作成する", type="primary", width="stretch"):
+    st.write("##### ✍️ AIレポート")
+    if st.button("🌟 この分析結果をもとにAIレポートを作成する", type="primary", width="stretch"):
 
+    report = generate_investment_report(
+        
+    render_investment_report(report)
     
     
 # 【2-6】メモ欄
