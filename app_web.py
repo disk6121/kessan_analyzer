@@ -224,12 +224,20 @@ if st.session_state.get("current_analysis"):
     st.divider()
     st.subheader("🔍 Webリアルタイム深掘り調査")
    
-    col_b1, col_b2, col_b3 = st.columns(3)
+    col_b1, col_b2 = st.columns(2)
+    col_b3, col_b4 = st.columns(2)
+    col_b5, col_b6 = st.columns(2)
+    col_b7, col_b8 = st.columns(2)
     clicked_topic = None
-    if col_b1.button("🏢 事業概要を調査", width="stretch"): clicked_topic = "事業概要"
-    if col_b2.button("📈 増収減収要因を調査", width="stretch"): clicked_topic = "増収減収要因"
-    if col_b3.button("💰 増益減益要因を調査", width="stretch"): clicked_topic = "増益減益要因"
-
+    if col_b1.button("🏢 事業概要", width="stretch"): clicked_topic = "事業概要"
+    if col_b2.button("📈 増収減収要因", width="stretch"): clicked_topic = "増収減収要因"
+    if col_b3.button("💰 増益減益要因", width="stretch"): clicked_topic = "増益減益要因"
+    if col_b4.button("🏆 競争優位性", width="stretch"): clicked_topic = "競争優位性"
+    if col_b5.button("🚀 成長戦略", width="stretch"): clicked_topic = "成長戦略"
+    if col_b6.button("🌏 市場環境", width="stretch"): clicked_topic = "市場環境"
+    if col_b7.button("⚠️ 事業リスク", width="stretch"): clicked_topic = "事業リスク"
+    if col_b8.button("📊 重要KPI", width="stretch"): clicked_topic = "重要KPI"
+    
     comp = analysis["meta"]["company_name"]
     tic = analysis["meta"]["ticker"]
 
