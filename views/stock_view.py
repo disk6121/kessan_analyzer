@@ -41,7 +41,7 @@ def render_stock_metrics(stock_meta):
         and eps_diluted is not None
         and eps_basic > 0
     ):
-        dilution_rate = (eps_basic - eps_diluted) / eps_basic * 100
+        dilution_rate = eps_diluted / eps_basic * 100
     
     # ROE
     net_assets = safe_float(stock_meta.get("net_assets", 0) or 0)
