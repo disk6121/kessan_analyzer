@@ -221,7 +221,6 @@ if st.session_state.get("current_analysis"):
 
 
 # 【2-2】AI定型調査     
-    st.divider()
     with st.expander("🔍 Webリアルタイム深掘り調査"):
    
         col_b1, col_b2 = st.columns(2)
