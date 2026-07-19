@@ -11,12 +11,14 @@ from database.save_repository import save_common_note
 from database.save_repository import save_analysis_data
 from database.load_repository import load_common_note
 from views.peer_comparison import render_peer_comparison
+from views.investment_report import render_investment_report
 from services.analysis_loader import restore_analysis_to_session
 from services.analysis_loader import load_saved_reports_to_session
 from services.gemini_service import investigate_topic
 from services.gemini_service import investigate_custom_query
 from services.analysis_manager import manage_analysis
 from services.analysis_loader import prepare_analysis_for_view
+from services.investment_report import generate_investment_report
 from views.analysis_view import render_analysis_visuals
 
 import json
@@ -203,7 +205,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
         if uploaded_files:
             if st.button("すべての決算をまとめて徹底分析", type="primary", key="analyze_btn"):
 
-                analysis = manage_analysis(uploaded_files,api_key)
+                analysis = manage_analysis(uploaded_files,)
 
                 st.session_state.current_analysis = analysis
 
@@ -241,7 +243,7 @@ if st.session_state.get("current_analysis"):
         tic = analysis["meta"]["ticker"]
 
         if clicked_topic:
-            result = investigate_topic(api_key,clicked_topic,comp,tic)
+            result = investigate_topic(,clicked_topic,comp,tic)
             st.session_state.reports_dict[clicked_topic] = result
 
 # 【2-3】AI自由調査
@@ -253,7 +255,7 @@ if st.session_state.get("current_analysis"):
         )
    
         if st.button("🔍 自由記述でWebリアルタイム調査を実行", type="secondary", width="stretch"):
-            result = investigate_custom_query(api_key, comp, tic, custom_query)
+            result = investigate_custom_query(, comp, tic, custom_query)
             st.session_state.reports_dict["自由カスタム調査"] = result
 
         # --- 調査結果の表示エリア ---
@@ -275,8 +277,7 @@ if st.session_state.get("current_analysis"):
     st.write("##### ✍️ AIレポート")
     if st.button("🌟 この分析結果をもとにAIレポートを作成する", type="primary", width="stretch"):
 
-    report = generate_investment_report(
-        
+    report = generate_investment_report(api_key,analysis)
     render_investment_report(report)
     
     
