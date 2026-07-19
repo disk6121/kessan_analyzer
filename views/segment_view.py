@@ -5,15 +5,14 @@ import matplotlib.pyplot as plt
 
 def render_segment_analysis(df_pivot_rev,df_pivot_prof):
 
-    if df_pivot_rev is None or df_pivot_prof is None:
-        st.info("※解析されたセグメントの時系列データが空のため、表示をスキップします。")
-        return
-
-    if (df_pivot_rev.sum().sum() == 0) or (df_pivot_prof.sum().sum() == 0):
-            st.info("※セグメント別の数値データがまだ十分に蓄積されていないため、セグメントグラフをスキップします。")
-
-
     with st.expander("🧩 報告セグメント別　売上・営業利益推移"):
+        
+        if df_pivot_rev is None or df_pivot_prof is None:
+            st.info("※解析されたセグメントの時系列データが空のため、表示をスキップします。")
+            return
+
+        if (df_pivot_rev.sum().sum() == 0) or (df_pivot_prof.sum().sum() == 0):
+                st.info("※セグメント別の数値データがまだ十分に蓄積されていないため、セグメントグラフをスキップします。")
 
         fig_seg, (ax_seg1, ax_seg2) = plt.subplots(1, 2, figsize=(16, 5))
         df_pivot_rev.plot(kind="bar", ax=ax_seg1, cmap="tab10", width=0.7)
