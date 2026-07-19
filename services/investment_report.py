@@ -3,19 +3,22 @@
 import json
 from google import genai
 from google.genai import types
+from datetime import datetime
 from database.load_repository import load_analysis_data
 
 def generate_investment_report(api_key,ticker):
 
     row_data, meta_row = load_analysis_data(ticker)   
     
-    combined_data = load_json(row_data["combined_data_json"]
+    combined_data = load_json(row_data["combined_data_json"])
     annual_performance = load_json(meta_row["annual_perf_json"]) 
     financial_meta = load_json(meta_row["financial_meta_json"]) 
     segment_analysis = load_json(row_data["seg_data_json"])
-    if row_data["peer_comparison_json"]:    
+    peer_comparison = []
+    if row_data.get(peer_comparison_json"):    
         peer_comparison = load_json(row_data["peer_comparison_json"])
-    deep_dive_reports = row_data["deep_dive_memo"]
+    deep_dive_reports = load_json(row_data["ai_deep_dive_json"])
+    kpi = {}
     if meta_row.get("kpi_json"):
         kpi = load_json(meta_row["kpi_json"])
     
@@ -201,7 +204,8 @@ def generate_investment_report(api_key,ticker):
         model="gemini-2.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
-            temperature=0.3
+            temperature=0.2,
+            response_mime_type="application/json"
         )
     )
 
@@ -212,11 +216,16 @@ def generate_investment_report(api_key,ticker):
         text = text.strip()
     try:
         report = json.loads(text)
-    except Exception:
+    except json.JSONDecodeError:
         report = {
             "error": "JSONの解析に失敗しました。",
             "raw_text": text
         }
+
+    report["investment_view"]["generated_at"] = (
+        datetime.now().strftime("%Y-%m-%d %H:%M")
+    )
+
     return report
 
 
