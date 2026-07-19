@@ -243,7 +243,7 @@ if st.session_state.get("current_analysis"):
         tic = analysis["meta"]["ticker"]
 
         if clicked_topic:
-            result = investigate_topic(clicked_topic,comp,tic)
+            result = investigate_topic(api_key, clicked_topic,comp,tic)
             st.session_state.reports_dict[clicked_topic] = result
 
 # 【2-3】AI自由調査
@@ -255,7 +255,7 @@ if st.session_state.get("current_analysis"):
         )
    
         if st.button("🔍 自由記述でWebリアルタイム調査を実行", type="secondary", width="stretch"):
-            result = investigate_custom_query(comp, tic, custom_query)
+            result = investigate_custom_query(api_key, comp, tic, custom_query)
             st.session_state.reports_dict["自由カスタム調査"] = result
 
         # --- 調査結果の表示エリア ---
