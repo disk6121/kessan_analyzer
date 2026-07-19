@@ -77,7 +77,7 @@ def render_kpi_editor(stock_meta, combined_data):
         edited_df = st.data_editor(
             df,
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
             num_rows="dynamic",
             key="kpi_editor",
             column_config=column_config
