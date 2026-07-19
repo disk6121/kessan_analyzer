@@ -267,7 +267,7 @@ if st.session_state.get("current_analysis"):
 
 
 # 【2-4】同業他社比較欄
-    with st.expander("##### ✍️ 同業他社比較"):
+    with st.expander("✍️ 同業他社比較"):
         render_peer_comparison(tic=tic, comp=comp, analysis=analysis)
 
     
