@@ -245,9 +245,9 @@ if st.session_state.get("current_analysis"):
             st.session_state.reports_dict[clicked_topic] = result
 
 # 【2-3】AI自由調査
-        st.write("##### ✍️ 自由なテーマでGeminiに調査を依頼する")
+
         custom_query = st.text_input(
-            label="調べたい内容を入力してください（例: 最新の株価材料や新製品の評判、競合他社との違いなど）",
+            label="自由記述調査",
             placeholder=f"例: {comp}の最近の対話型AIに関するプレスリリースや、市場での評価について教えてください。",
             key=f"custom_query_input_{tic}"
         )
