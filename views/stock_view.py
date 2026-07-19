@@ -23,22 +23,25 @@ def render_stock_metrics(stock_meta):
     div_yield = safe_float(stock_meta.get("div_yield"))
     shares_issued = safe_float(stock_meta.get("shares_issued", 0) or 0)
     treasury_shares = safe_float(stock_meta.get("treasury_shares", 0) or 0)
+    user_fc = stock_meta.get("user_forecast", {})
+    year1 = user_fc.get("year1", {})
+    year2 = user_fc.get("year2", {})
+
+    #時価総額
     ns_shares = shares_issued - treasury_shares
     if price and ns_shares > 0:
         market_cap_okuen = (price * ns_shares) / 100000000
     else:
         market_cap_okuen = None
+
+    #希薄化率
     dilution_rate = None
     if (
         eps_basic is not None
         and eps_diluted is not None
         and eps_basic > 0
     ):
-        dilution_rate = eps_diluted / eps_basic * 100
-
-    user_fc = stock_meta.get("user_forecast", {})
-    year1 = user_fc.get("year1", {})
-    year2 = user_fc.get("year2", {})
+        dilution_rate = (eps_basic - eps_diluted) / eps_basic * 100
     
     # ROE
     net_assets = safe_float(stock_meta.get("net_assets", 0) or 0)
@@ -48,10 +51,10 @@ def render_stock_metrics(stock_meta):
     if net_assets > 0:
         roe = net_income_forecast / net_assets * 100
 
-    #非支配株主持分比率
+    #支配株主持分比率
     non_controlling_interests = safe_float(stock_meta.get("non_controlling_interests", 0) or 0)
     if net_assets:
-        non_controlling_interests_rate = non_controlling_interests / net_assets * 100
+        non_controlling_interests_rate = (net_assets - non_controlling_interests) / net_assets * 100
     else:
         non_controlling_interests_rate = 0
     
@@ -87,7 +90,7 @@ def render_stock_metrics(stock_meta):
     col_p4.metric("PBR (実績)", f"{pbr:.2f} 倍" if pbr else "データなし")
     col_p5.metric("配当利回り (予想)", f"{div_yield:.2f} %" if div_yield else "データなし")
     col_p6.metric("希薄化率",  f"{dilution_rate:.1f} %" if dilution_rate is not None else "データなし")
-    col_p7.metric("支配株主持分比率",  f"{non_controlling_interests_rate:.1f} %" if non_controlling_interests_rate is not None else "データなし")
+    col_p7.metric("非支配株主持分比率",  f"{non_controlling_interests_rate:.1f} %" if non_controlling_interests_rate is not None else "データなし")
     col_p8.metric("ROE (予想)", f"{roe:.2f} %" if roe is not None else "データなし")
     col_p9.metric("PER (独自予想１期目)", f"{per_year1:.2f} 倍" if per_year1 is not None else "データなし")
     col_p10.metric("EPS(独自予想１期目)", f"{eps1:.1f}" if eps1 is not None else "データなし")
