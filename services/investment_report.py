@@ -5,6 +5,8 @@ from google import genai
 from google.genai import types
 from datetime import datetime
 from database.load_repository import load_analysis_data
+from database.load_repository import load_json
+
 
 def generate_investment_report(api_key,ticker):
 
