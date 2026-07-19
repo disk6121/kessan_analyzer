@@ -23,6 +23,65 @@ def generate_investment_report(api_key,ticker):
     kpi = {}
     if meta_row.get("kpi_json"):
         kpi = load_json(meta_row["kpi_json"])
+
+    OUTPUT_FORMAT = """
+　　{
+    "growth": {
+      "title": "成長性",
+      "comment": "",
+      "positive_points": [],
+      "concerns": [],
+      "growth_drivers": [],
+      "watch_points": []
+    },
+
+    "profitability": {
+      "title": "収益性",
+      "comment": "",
+      "positive_points": [],
+      "concerns": [],
+      "watch_points": []
+    },
+
+    "financial_health": {
+      "title": "財務健全性",
+      "comment": "",
+      "positive_points": [],
+      "concerns": [],
+      "watch_points": []
+    },
+
+    "valuation": {
+      "title": "バリュエーション",
+      "comment": "",
+      "positive_points": [],
+      "concerns": [],
+      "watch_points": []
+    },
+
+    "investment_risks": {
+      "business_risks": [],
+      "financial_risks": [],
+      "market_risks": []
+    },
+
+    "investment_scenario": {
+      "bull_case": "",
+      "bear_case": "",
+      "key_monitoring_points": []
+    },
+
+    "next_quarter_focus": [],
+
+    "investment_view": {
+      "stance": "",
+      "reason": "",
+      "generated_at": ""
+    },
+
+    "summary": ""
+　　}
+　　　"""
     
     client = genai.Client(api_key=api_key)
 
@@ -85,62 +144,7 @@ def generate_investment_report(api_key,ticker):
 
   必ずJSONのみ返してください。
 
-  {{
-    "growth": {
-      "title": "成長性",
-      "comment": "",
-      "positive_points": [],
-      "concerns": [],
-      "growth_drivers": [],
-      "watch_points": []
-    },
-
-    "profitability": {
-      "title": "収益性",
-      "comment": "",
-      "positive_points": [],
-      "concerns": [],
-      "watch_points": []
-    },
-
-    "financial_health": {
-      "title": "財務健全性",
-      "comment": "",
-      "positive_points": [],
-      "concerns": [],
-      "watch_points": []
-    },
-
-    "valuation": {
-      "title": "バリュエーション",
-      "comment": "",
-      "positive_points": [],
-      "concerns": [],
-      "watch_points": []
-    },
-
-    "investment_risks": {
-      "business_risks": [],
-      "financial_risks": [],
-      "market_risks": []
-    },
-
-    "investment_scenario": {
-      "bull_case": "",
-      "bear_case": "",
-      "key_monitoring_points": []
-    },
-
-    "next_quarter_focus": [],
-
-    "investment_view": {
-      "stance": "",
-      "reason": "",
-      "generated_at": ""
-    },
-
-    "summary": ""
-  }}
+　{OUTPUT_FORMAT}
 
   =========================
   【各項目の作成ルール】
