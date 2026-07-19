@@ -270,8 +270,14 @@ if st.session_state.get("current_analysis"):
     with st.expander("✍️ 同業他社比較"):
         render_peer_comparison(tic=tic, comp=comp, analysis=analysis)
 
+
+# 【2-5】AIレポート欄
+#   st.write("##### ✍️ AIレポート")
+#   if st.button("🌟 この分析結果をもとにAIレポートを作成する", type="primary", width="stretch"):
+
     
-# 【2-5】メモ欄
+    
+# 【2-6】メモ欄
     st.write("##### ✍️ 調査メモ・考察（自由記述欄）")
     if "deep_dive_memo_input" not in st.session_state:
         st.session_state.deep_dive_memo_input = ""
@@ -287,7 +293,7 @@ if st.session_state.get("current_analysis"):
 
     
 
-# 【2-6】分析結果を保存
+# 【2-7】分析結果を保存
     st.divider()
     st.write("#### 💾 この企業のデータをウォッチリストに保存しますか？")
     
