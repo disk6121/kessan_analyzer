@@ -243,7 +243,7 @@ if st.session_state.get("current_analysis"):
         tic = analysis["meta"]["ticker"]
 
         if clicked_topic:
-            result = investigate_topic(,clicked_topic,comp,tic)
+            result = investigate_topic(clicked_topic,comp,tic)
             st.session_state.reports_dict[clicked_topic] = result
 
 # 【2-3】AI自由調査
