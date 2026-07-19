@@ -5,8 +5,10 @@ from google import genai
 from google.genai import types
 
 
-def generate_investment_report(
-    api_key,
+def generate_investment_report(api_key,ticker):
+
+    
+    
     combined_data,
     annual_performance,
     financial_meta,
@@ -14,8 +16,9 @@ def generate_investment_report(
     peer_comparison,
     deep_dive_reports,
     kpi
-):
+    
 
+    
     client = genai.Client(api_key=api_key)
 
     prompt = f"""
