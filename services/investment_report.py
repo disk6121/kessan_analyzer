@@ -15,7 +15,7 @@ def generate_investment_report(api_key,ticker):
     financial_meta = load_json(meta_row["financial_meta_json"]) 
     segment_analysis = load_json(row_data["seg_data_json"])
     peer_comparison = []
-    if row_data.get(peer_comparison_json"):    
+    if row_data.get("peer_comparison_json"):    
         peer_comparison = load_json(row_data["peer_comparison_json"])
     deep_dive_reports = load_json(row_data["ai_deep_dive_json"])
     kpi = {}
