@@ -43,6 +43,8 @@ def render_analysis_visuals(stock_meta, combined_data, seg_by_quarter):
     st.divider()
     
     render_stock_metrics(stock_meta)
+
+    st.divider()
     
     render_financial_metrics(stock_meta)
     
