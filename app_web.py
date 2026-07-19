@@ -257,6 +257,7 @@ if st.session_state.get("current_analysis"):
             st.session_state.reports_dict["自由カスタム調査"] = result
 
         # --- 調査結果の表示エリア ---
+        st.divider()
         has_any_report = False
         for label, report_content in st.session_state.reports_dict.items():
             if report_content:
