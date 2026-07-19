@@ -255,7 +255,7 @@ if st.session_state.get("current_analysis"):
         )
    
         if st.button("🔍 自由記述でWebリアルタイム調査を実行", type="secondary", width="stretch"):
-            result = investigate_custom_query(, comp, tic, custom_query)
+            result = investigate_custom_query(comp, tic, custom_query)
             st.session_state.reports_dict["自由カスタム調査"] = result
 
         # --- 調査結果の表示エリア ---
