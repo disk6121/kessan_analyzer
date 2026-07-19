@@ -127,7 +127,8 @@ def generate_investment_report(
 
     "investment_view": {
       "stance": "",
-      "reason": ""
+      "reason": "",
+      "generated_at": ""
     },
 
     "summary": ""
