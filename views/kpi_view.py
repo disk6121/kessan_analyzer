@@ -72,7 +72,7 @@ def render_kpi_editor(stock_meta, combined_data):
             format="%.1f"
         )
 
-     edited_df = st.data_editor(
+    edited_df = st.data_editor(
         df,
         hide_index=True,
         width="stretch",
