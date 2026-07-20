@@ -49,19 +49,19 @@ def render_analysis_visuals(stock_meta, combined_data, seg_by_quarter):
     render_financial_metrics(stock_meta)
 
     st.divider()
-    
-    stock_meta = render_kpi_editor(stock_meta, combined_data)
+    with st.expander("📊 主要KPI"):
+        stock_meta = render_kpi_editor(stock_meta, combined_data)
 
-    kpi_data = stock_meta.get("kpi_data", {})
-    if kpi_data:
-        first_q = next(iter(kpi_data.values()), {})
-        kpi_items = list(first_q.keys())
-        selected_kpi = st.selectbox(
-            "表示するKPI",
-            kpi_items
-        )
-    else:
-        selected_kpi = None
+        kpi_data = stock_meta.get("kpi_data", {})
+        if kpi_data:
+            first_q = next(iter(kpi_data.values()), {})
+            kpi_items = list(first_q.keys())
+            selected_kpi = st.selectbox(
+                "グラフに表示するKPI",
+                kpi_items
+            )
+        else:
+            selected_kpi = None
     
     render_quarter_chart(combined_data,stock_meta.get("kpi_data",{}),selected_kpi)
 
