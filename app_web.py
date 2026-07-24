@@ -181,8 +181,9 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
 
 # 【1-5】決算発表スケジュール
     with st.expander("📅 決算発表スケジュール"):
-        today_df = df_db[df_db["days_diff"] == 0]
-
+        today_df = edited_db[edited_db["days_diff"] == 0]
+        today_df = today_df[["証券コード", "企業名", "⭐お気に入り", "決算種別"]]
+        
         upcoming_df = df_db[
             (df_db["days_diff"] >= 1) &
             (df_db["days_diff"] <= 7)
@@ -197,18 +198,13 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
         with col1:
             if not today_df.empty:
                 st.success("🔴 今日発表")
-                st.dataframe(
-                    today_df[
-                        ["ticker", "company_name", "⭐お気に入り", "announcement_type"]
-                    ],
-                    hide_index=True
-                )
+                st.dataframe(today_df,hide_index=True)
         with col2:
             if not upcoming_df.empty:
                 st.warning("🟠 7日以内に発表予定")
                 st.dataframe(
                     upcoming_df[
-                        ["ticker", "company_name", "⭐お気に入り", "announcement_display", "announcement_type"]
+                        ["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]
                     ],
                     hide_index=True
                 )
@@ -217,7 +213,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
                 st.info("🟢 過去7日以内に発表")
                 st.dataframe(
                     recent_df[
-                        ["ticker", "company_name", "⭐お気に入り", "announcement_display", "announcement_type"]
+                        ["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]
                     ],
                     hide_index=True
                 )
