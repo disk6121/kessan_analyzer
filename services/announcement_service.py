@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 
 
-def load_schedule(excel_path: str) -> pd.DataFrame:
+def load_schedule(excel_path="kessan_schedule.xlsx") -> pd.DataFrame:
     """
     JPXの決算発表予定Excelを読み込み、
     必要な列だけを返す。
@@ -55,8 +55,8 @@ def load_schedule(excel_path: str) -> pd.DataFrame:
     return df
 
 
-
-def get_schedule_dict(excel_path: str) -> dict:
+@st.cache_data 
+def get_schedule_dict(excel_path="kessan_schedule.xlsx") -> dict:
     """
     tickerをキーにした辞書を返す。
 
@@ -87,7 +87,7 @@ def get_schedule_dict(excel_path: str) -> dict:
     return schedule
 
 
-def get_company_schedule(ticker: str, schedule_dict: dict):
+def get_company_schedule(ticker, schedule_dict):
     """
     指定銘柄の決算予定情報を取得
 
