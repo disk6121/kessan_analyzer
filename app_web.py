@@ -52,6 +52,16 @@ with col1:
 # 【1-2】ウォッチリストを表形式で表示
 df_db = get_watchlist()### companiesテーブルを取得
 df_db["alert_status"] = df_db.apply(get_alert_status,axis=1)###　最新の株価に基づき株価アラートを更新
+df_db["schedule"] = df_db["ticker"].apply(lambda x: get_company_schedule(x, schedule_dict))
+df_db["announcement_date"] = df_db["schedule"].apply(lambda x: x["announcement_date"] if x else pd.NaT)
+df_db["announcement_type"] = df_db["schedule"].apply(lambda x: x["announcement_type"] if x else "")
+df_db["announcement_display"] = df_db.apply(
+    lambda row:
+        f'{row["announcement_date"].strftime("%Y/%m/%d")} ({row["days_until"]})'
+        if pd.notna(row["announcement_date"])
+        else "",
+    axis=1
+)
 
 if not df_db.empty:###　companiesテーブルの項目を日本語名に置き換えて表示
     df_display = df_db[
@@ -64,12 +74,15 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             "is_favorite", 
             "buy_target", 
             "sell_target",
-            "alert_status"
+            "alert_status",
+            "announcement_display",
+            "announcement_type"
         ]
     ].rename(columns={
         "ticker": "証券コード", "company_name": "企業名", "saved_date": "保存日", "current_price": "株価",
         "investment_memo": "投資メモ", "is_favorite": "⭐お気に入り", 
-        "buy_target": "買いたい価格", "sell_target": "売りたい価格", "alert_status":"アラート"
+        "buy_target": "買いたい価格", "sell_target": "売りたい価格", "alert_status":"アラート",
+        "announcement_display": "決算予定", "announcement_type": "決算種別"
     })
 
     edited_df = st.data_editor(###　表内の一部機能については編集可能
