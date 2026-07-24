@@ -58,6 +58,7 @@ schedule_dict = get_schedule_dict("kessan_schedule.xlsx")
 df_db["schedule"] = df_db["ticker"].apply(lambda x: get_company_schedule(x, schedule_dict))
 df_db["announcement_date"] = df_db["schedule"].apply(lambda x: x["announcement_date"] if x else pd.NaT)
 df_db["announcement_type"] = df_db["schedule"].apply(lambda x: x["announcement_type"] if x else "")
+df_db["days_until"] = df_db["announcement_date"].apply(get_days_until_announcement)
 df_db["announcement_display"] = df_db.apply(
     lambda row:
         f'{row["announcement_date"].strftime("%Y/%m/%d")} ({row["days_until"]})'
@@ -94,7 +95,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             "⭐お気に入り": st.column_config.CheckboxColumn(help="気になる銘柄をチェック"),
             "投資メモ":st.column_config.TextColumn(width="large"),
             },
-        disabled=["証券コード", "企業名", "保存日", "株価"],
+        disabled=["証券コード", "企業名", "保存日", "株価", "決算予定", "決算種別"],
         width="stretch",
         key="editor"
     )
