@@ -43,8 +43,8 @@ def load_schedule(excel_path) -> pd.DataFrame:
     df["ticker"] = (
         df["ticker"]
         .astype(str)
-        .str.extract(r"(\d+)")
-        .fillna("")
+        .str.strip()
+        .str.upper()
     )
 
     # 日付型へ変換
