@@ -186,16 +186,17 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_type": "決算種別"
             })
         
-        upcoming_df = df_db[
-            (df_db["days_diff"] >= 1) &
-            (df_db["days_diff"] <= 7)
-        ].sort_values("days_diff")
+        upcoming_df = df_db[(df_db["days_diff"] >= 1)&(df_db["days_diff"] <= 7)].sort_values("days_diff")
+         upcoming_df = upcoming_df[["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]].rename(columns={
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "announcement_type": "決算種別"
+            })
+        
+        recent_df = df_db[(df_db["days_diff"] >= -7)&(df_db["days_diff"] <= -1)].sort_values("days_diff", ascending=False)
+        recent_df = recent_df[["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]].rename(columns={
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "announcement_type": "決算種別"
+            })
 
-        recent_df = df_db[
-            (df_db["days_diff"] >= -7) &
-            (df_db["days_diff"] <= -1)
-        ].sort_values("days_diff", ascending=False)
-
+        
         col1, col2, col3 = st.columns(3)
         with col1:
             if not today_df.empty:
@@ -204,22 +205,11 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
         with col2:
             if not upcoming_df.empty:
                 st.warning("🟠 7日以内に発表予定")
-                st.dataframe(
-                    upcoming_df[
-                        ["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]
-                    ],
-                    hide_index=True
-                )
+                st.dataframe(upcoming_df,hide_index=True,width="stretch"）
         with col3:
             if not recent_df.empty:
                 st.info("🟢 過去7日以内に発表")
-                st.dataframe(
-                    recent_df[
-                        ["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]
-                    ],
-                    hide_index=True
-                )
-
+                st.dataframe(recent_df,hide_index=True)
             
     
 # 【1-6】過去の分析結果詳細の呼び出し
