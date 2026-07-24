@@ -182,7 +182,9 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
 # 【1-5】決算発表スケジュール
     with st.expander("📅 決算発表スケジュール"):
         today_df = df_db[df_db["days_diff"] == 0]
-        today_df = today_df[["証券コード", "企業名", "⭐お気に入り", "決算種別"]]
+        today_df = today_df[["ticker", "company_name", "is_favorite", "announcement_type"]].rename(columns={
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_type": "決算種別"
+            })
         
         upcoming_df = df_db[
             (df_db["days_diff"] >= 1) &
