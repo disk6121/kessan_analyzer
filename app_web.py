@@ -205,7 +205,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
         with col2:
             if not upcoming_df.empty:
                 st.warning("🟠 7日以内に発表予定")
-                st.dataframe(upcoming_df,hide_index=True,width="stretch"）
+                st.dataframe(upcoming_df,hide_index=True,width="stretch")
         with col3:
             if not recent_df.empty:
                 st.info("🟢 過去7日以内に発表")
