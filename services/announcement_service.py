@@ -1,6 +1,7 @@
 
 from datetime import date
 import pandas as pd
+import streamlit as st
 
 
 def load_schedule(excel_path) -> pd.DataFrame:
