@@ -19,6 +19,7 @@ from services.gemini_service import investigate_custom_query
 from services.analysis_manager import manage_analysis
 from services.analysis_loader import prepare_analysis_for_view
 from services.investment_report import generate_investment_report
+from services.announcement_service import get_company_schedule
 from views.analysis_view import render_analysis_visuals
 
 import json
