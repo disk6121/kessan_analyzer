@@ -130,3 +130,21 @@ def get_days_until_announcement(announcement_date):
         return "明日"
 
     return f"あと{diff}日"
+
+
+def get_days_diff(announcement_date):
+    """
+    今日との差（日数）
+
+    今日      = 0
+    明日      = 1
+    昨日      = -1
+    5日前     = -5
+    """
+
+    if pd.isna(announcement_date):
+        return None
+
+    return (announcement_date.date() - date.today()).days
+
+
