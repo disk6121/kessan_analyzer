@@ -22,6 +22,7 @@ from services.investment_report import generate_investment_report
 from services.announcement_service import get_company_schedule
 from services.announcement_service import get_schedule_dict
 from services.announcement_service import get_days_until_announcement
+from services.announcement_service import get_days_diff
 from views.analysis_view import render_analysis_visuals
 
 import json
@@ -67,6 +68,7 @@ df_db["announcement_display"] = df_db.apply(
         else "",
     axis=1
 )
+df_db["days_diff"] = df_db["announcement_date"].apply(get_days_diff)
 
 if not df_db.empty:###　companiesテーブルの項目を日本語名に置き換えて表示
     df_display = df_db[
@@ -177,7 +179,51 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             st.warning(f"🔴 売りシグナル {len(sell_df)}件")
             st.dataframe(sell_df,width="stretch")
 
+# 【1-5】決算発表スケジュール
+    with st.expander("📅 決算発表スケジュール"):
+        today_df = df_db[df_db["days_diff"] == 0]
 
+        upcoming_df = df_db[
+            (df_db["days_diff"] >= 1) &
+            (df_db["days_diff"] <= 7)
+        ].sort_values("days_diff")
+
+        recent_df = df_db[
+            (df_db["days_diff"] >= -7) &
+            (df_db["days_diff"] <= -1)
+        ].sort_values("days_diff", ascending=False)
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if not today_df.empty:
+                st.success("🔴 今日発表")
+                st.dataframe(
+                    today_df[
+                        ["ticker","company_name","announcement_type"]
+                    ],
+                    hide_index=True
+                )
+        with col2:
+            if not upcoming_df.empty:
+                st.warning("🟠 7日以内に発表予定")
+                st.dataframe(
+                    upcoming_df[
+                        ["ticker", "company_name", "announcement_display", "announcement_type"]
+                    ],
+                    hide_index=True
+                )
+        with col3:
+            if not recent_df.empty:
+                st.info("🟢 過去7日以内に発表")
+                st.dataframe(
+                    recent_df[
+                        ["ticker", "company_name", "announcement_display", "announcement_type"]
+                    ],
+                    hide_index=True
+                )
+
+            
+    
 # 【1-6】過去の分析結果詳細の呼び出し
     st.write("#### 📂 過去の分析結果を呼び出す")
 
