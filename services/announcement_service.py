@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 
 
-def load_schedule(excel_path="kessan_schedule.xlsx") -> pd.DataFrame:
+def load_schedule(excel_path) -> pd.DataFrame:
     """
     JPXの決算発表予定Excelを読み込み、
     必要な列だけを返す。
@@ -56,7 +56,7 @@ def load_schedule(excel_path="kessan_schedule.xlsx") -> pd.DataFrame:
 
 
 @st.cache_data 
-def get_schedule_dict(excel_path="kessan_schedule.xlsx") -> dict:
+def get_schedule_dict(excel_path) -> dict:
     """
     tickerをキーにした辞書を返す。
 
