@@ -199,7 +199,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
                 st.success("🔴 今日発表")
                 st.dataframe(
                     today_df[
-                        ["ticker","company_name","announcement_type"]
+                        ["ticker", "company_name", "⭐お気に入り", "announcement_type"]
                     ],
                     hide_index=True
                 )
@@ -208,7 +208,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
                 st.warning("🟠 7日以内に発表予定")
                 st.dataframe(
                     upcoming_df[
-                        ["ticker", "company_name", "announcement_display", "announcement_type"]
+                        ["ticker", "company_name", "⭐お気に入り", "announcement_display", "announcement_type"]
                     ],
                     hide_index=True
                 )
@@ -217,7 +217,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
                 st.info("🟢 過去7日以内に発表")
                 st.dataframe(
                     recent_df[
-                        ["ticker", "company_name", "announcement_display", "announcement_type"]
+                        ["ticker", "company_name", "⭐お気に入り", "announcement_display", "announcement_type"]
                     ],
                     hide_index=True
                 )
