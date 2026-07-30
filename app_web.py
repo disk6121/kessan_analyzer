@@ -163,7 +163,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             * 100
         ).round(1)
 
-        sell_df = sell_df[["証券コード", "企業名", "株価", "買いたい価格", "乖離率(%)", "決算期待度(%)"]]
+        sell_df = sell_df[["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]]
 
         buy_df = buy_df.sort_values("乖離率(%)",ascending=False)
         sell_df = sell_df.sort_values("乖離率(%)",ascending=False)
@@ -185,18 +185,18 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
 # 【1-5】決算発表スケジュール
     with st.expander("📅 決算発表スケジュール"):
         today_df = df_db[df_db["days_diff"] == 0]
-        today_df = today_df[["ticker", "company_name", "is_favorite", "announcement_type"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "expectation": "決算期態度(%)"
+        today_df = today_df[["ticker", "company_name", "is_favorite", "expectation"]].rename(columns={
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "expectation": "決算期待度(%)"
             })
         
         upcoming_df = df_db[(df_db["days_diff"] >= 1)&(df_db["days_diff"] <= 7)].sort_values("days_diff")
-        upcoming_df = upcoming_df[["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "expectation": "決算期態度(%)"
+        upcoming_df = upcoming_df[["ticker", "company_name", "is_favorite", "announcement_display", "expectation"]].rename(columns={
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "expectation": "決算期待度(%)"
             })
         
         recent_df = df_db[(df_db["days_diff"] >= -7)&(df_db["days_diff"] <= -1)].sort_values("days_diff", ascending=False)
-        recent_df = recent_df[["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "expectation": "決算期態度(%)"
+        recent_df = recent_df[["ticker", "company_name", "is_favorite", "announcement_display", "expectation"]].rename(columns={
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "expectation": "決算期待度(%)"
             })
 
         
