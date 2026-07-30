@@ -19,6 +19,7 @@ from services.gemini_service import investigate_custom_query
 from services.analysis_manager import manage_analysis
 from services.analysis_loader import prepare_analysis_for_view
 from services.investment_report import generate_investment_report
+from services.calc_expectation_service import calc_expectation
 from services.announcement_service import get_company_schedule
 from services.announcement_service import get_schedule_dict
 from services.announcement_service import get_days_until_announcement
@@ -69,6 +70,7 @@ df_db["announcement_display"] = df_db.apply(
     axis=1
 )
 df_db["days_diff"] = df_db["announcement_date"].apply(get_days_diff)
+df_db["expectation"] = df_db.apply(calc_expectation, axis=1)
 
 if not df_db.empty:###　companiesテーブルの項目を日本語名に置き換えて表示
     df_display = df_db[
@@ -151,7 +153,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             / buy_df["株価"]
             * 100
         ).round(1)
-        buy_df = buy_df[["証券コード", "企業名", "株価", "売りたい価格", "乖離率(%)"]]
+        buy_df = buy_df[["証券コード", "企業名", "株価", "売りたい価格", "乖離率(%)", "決算期態度(%)"]]
 
         sell_df = edited_df[(edited_df["アラート"] == "🔴売り")&(edited_df["⭐お気に入り"]==True)].copy()
         sell_df["乖離率(%)"] = (
@@ -160,7 +162,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             * 100
         ).round(1)
 
-        sell_df = sell_df[["証券コード", "企業名", "株価", "買いたい価格", "乖離率(%)"]]
+        sell_df = sell_df[["証券コード", "企業名", "株価", "買いたい価格", "乖離率(%)", "決算期態度(%)"]]
 
         buy_df = buy_df.sort_values("乖離率(%)",ascending=False)
         sell_df = sell_df.sort_values("乖離率(%)",ascending=False)
@@ -183,17 +185,17 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
     with st.expander("📅 決算発表スケジュール"):
         today_df = df_db[df_db["days_diff"] == 0]
         today_df = today_df[["ticker", "company_name", "is_favorite", "announcement_type"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_type": "決算種別"
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "expectation": "決算期態度(%)"
             })
         
         upcoming_df = df_db[(df_db["days_diff"] >= 1)&(df_db["days_diff"] <= 7)].sort_values("days_diff")
         upcoming_df = upcoming_df[["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "announcement_type": "決算種別"
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "expectation": "決算期態度(%)"
             })
         
         recent_df = df_db[(df_db["days_diff"] >= -7)&(df_db["days_diff"] <= -1)].sort_values("days_diff", ascending=False)
         recent_df = recent_df[["ticker", "company_name", "is_favorite", "announcement_display", "announcement_type"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "announcement_type": "決算種別"
+            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "expectation": "決算期態度(%)"
             })
 
         
