@@ -154,7 +154,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             / buy_df["株価"]
             * 100
         ).round(1)
-        buy_df = buy_df[["証券コード", "企業名", "株価", "売りたい価格", "乖離率(%)", "決算期態度(%)"]]
+        buy_df = buy_df[["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]]
 
         sell_df = edited_df[(edited_df["アラート"] == "🔴売り")&(edited_df["⭐お気に入り"]==True)].copy()
         sell_df["乖離率(%)"] = (
@@ -163,7 +163,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             * 100
         ).round(1)
 
-        sell_df = sell_df[["証券コード", "企業名", "株価", "買いたい価格", "乖離率(%)", "決算期態度(%)"]]
+        sell_df = sell_df[["証券コード", "企業名", "株価", "買いたい価格", "乖離率(%)", "決算期待度(%)"]]
 
         buy_df = buy_df.sort_values("乖離率(%)",ascending=False)
         sell_df = sell_df.sort_values("乖離率(%)",ascending=False)
