@@ -23,8 +23,11 @@ def calc_expectation(row):
             forecast.get("year1", {})
             .get("net_income")
         )
-
-        if company in [None, "", 0] or user in [None, ""]:
+        
+        company = float(company) / 1000000
+        user = float(user)
+        
+        if company ==0 :
             return None
 
         return round((user - company) / company * 100, 1)
