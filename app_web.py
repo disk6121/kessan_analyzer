@@ -91,7 +91,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
     ].rename(columns={
         "ticker": "証券コード", "company_name": "企業名", "saved_date": "保存日", "current_price": "株価",
         "investment_memo": "投資メモ", "is_favorite": "⭐お気に入り", 
-        "buy_target": "買いたい価格", "sell_target": "売りたい価格", "alert_status":"アラート","expectation": "決算期態度(%)"
+        "buy_target": "買いたい価格", "sell_target": "売りたい価格", "alert_status":"アラート","expectation": "決算期態度(%)",
         "announcement_display": "決算予定", "announcement_type": "決算種別"
     })
 
