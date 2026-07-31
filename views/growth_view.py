@@ -405,8 +405,9 @@ def render_progress_table(stock_meta, combined_data):
 
     if forecast:
         net_income = forecast.get("net_income", {})
+        forecast_profit = stock_meta.get("net_income_forecast") or 0
         
-        if stock_meta.get("net_income_forecast")/1000000  != net_income:
+        if forecast_profit/1000000  != net_income:
             st.warning("★★★業績予想の修正あり★★★")
             st.write(f"純利益  　：  {net_income}百万円    ---→    {stock_meta.get("net_income_forecast")/1000000}百万円")
     
