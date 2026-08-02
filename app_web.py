@@ -99,7 +99,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             "⭐お気に入り": st.column_config.CheckboxColumn(help="気になる銘柄をチェック"),
             "投資メモ":st.column_config.TextColumn(width="large"),
             },
-        disabled=["証券コード", "企業名", "保存日", "株価", "決算期態度(%)", "決算予定", "決算種別"],
+        disabled=["証券コード", "企業名", "保存日", "株価", "決算期待度(%)", "決算予定", "決算種別"],
         width="stretch",
         key="editor"
     )
