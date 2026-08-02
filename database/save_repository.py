@@ -194,7 +194,7 @@ def save_analysis_data(
 
 
 
-def save_companies_memo(edited_df):
+def save_companies_memo_pre(edited_df):
     for _, row in edited_df.iterrows():
         fav_val = bool(row["⭐お気に入り"])
         (
@@ -209,6 +209,39 @@ def save_companies_memo(edited_df):
             .eq("ticker", row["証券コード"])
             .execute()
         )
+
+def save_companies_memo(edited_df):
+
+    edited_rows = st.session_state.get("editor", {}).get("edited_rows", {})
+
+    if not edited_rows:
+        return
+
+    for row_index, changes in edited_rows.items():
+
+        row = edited_df.iloc[row_index]
+
+        data = {}
+
+        if "⭐お気に入り" in changes:
+            data["is_favorite"] = bool(row["⭐お気に入り"])
+
+        if "投資メモ" in changes:
+            data["investment_memo"] = clean(row["投資メモ"])
+
+        if "買いたい価格" in changes:
+            data["buy_target"] = clean(row["買いたい価格"])
+
+        if "売りたい価格" in changes:
+            data["sell_target"] = clean(row["売りたい価格"])
+
+        if data:
+            (
+                supabase.table("companies")
+                .update(data)
+                .eq("ticker", row["証券コード"])
+                .execute()
+            )
 
 
 def save_common_note(note):
