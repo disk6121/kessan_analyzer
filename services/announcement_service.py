@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 
 
+@st.cache_data
 def load_schedule(excel_path) -> pd.DataFrame:
     """
     JPXの決算発表予定Excelを読み込み、
