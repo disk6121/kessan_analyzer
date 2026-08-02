@@ -26,8 +26,6 @@ from services.announcement_service import get_days_until_announcement
 from services.announcement_service import get_days_diff
 from views.analysis_view import render_analysis_visuals
 
-import json
-import streamlit as st
 
 # ---------------------------------------------------------
 # タイトル
