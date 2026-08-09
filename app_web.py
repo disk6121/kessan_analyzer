@@ -153,7 +153,8 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
                 / buy_df["株価"]
                 * 100
             ).round(1)
-        else buy_df["乖離率(%)"] = 1
+        else :
+            buy_df["乖離率(%)"] = 1
         buy_df = buy_df[["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]]
 
         sell_df = edited_df[(edited_df["アラート"] == "🔴売り")&(edited_df["⭐お気に入り"]==True)].copy()
