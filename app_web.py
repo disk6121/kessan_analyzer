@@ -150,16 +150,15 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             (edited_df["⭐お気に入り"] == True)
         ].copy()
 
-        # 売りたい価格がある行だけ乖離率を計算
         buy_df["乖離率(%)"] = (
             (buy_df["売りたい価格"] - buy_df["株価"])
             / buy_df["株価"]
             * 100
         ).round(1)
 
-        # 売りたい価格がない行は「なし」
         buy_df.loc[
-            buy_df["売りたい価格"].isna(),
+            buy_df["売りたい価格"].isna() |
+            (buy_df["売りたい価格"]==""),
             "乖離率(%)"
         ] = "なし"
 
