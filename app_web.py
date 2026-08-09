@@ -156,6 +156,8 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             * 100
         ).round(1)
 
+        buy_df["乖離率(%)"] = buy_df["乖離率(%)"].astype(object) 
+
         buy_df.loc[
             buy_df["売りたい価格"].isna() |
             (buy_df["売りたい価格"]==""),
