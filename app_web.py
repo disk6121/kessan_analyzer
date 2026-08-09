@@ -145,34 +145,80 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
 
 # 【1-5】買いシグナル、売りシグナル銘柄の一覧表示
     with st.expander("🗂️ アラート点灯リスト"):
+        buy_df = edited_df[
+            (edited_df["アラート"] == "🟢買い") &
+            (edited_df["⭐お気に入り"] == True)
+        ].copy()
 
-        buy_df = edited_df[(edited_df["アラート"] == "🟢買い")&(edited_df["⭐お気に入り"]==True)].copy()
-        if buy_df["売りたい価格"] is not None:
-            buy_df["乖離率(%)"] = (
-                (buy_df["売りたい価格"] - buy_df["株価"])
-                / buy_df["株価"]
-                * 100
-            ).round(1)
-        else :
-            buy_df["乖離率(%)"] = "なし"
-        buy_df = buy_df[["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]]
+        # 売りたい価格がある行だけ乖離率を計算
+        buy_df["乖離率(%)"] = (
+            (buy_df["売りたい価格"] - buy_df["株価"])
+            / buy_df["株価"]
+            * 100
+        ).round(1)
 
-        sell_df = edited_df[(edited_df["アラート"] == "🔴売り")&(edited_df["⭐お気に入り"]==True)].copy()
+        # 売りたい価格がない行は「なし」
+        buy_df.loc[
+            buy_df["売りたい価格"].isna(),
+            "乖離率(%)"
+        ] = "なし"
+
+        buy_df = buy_df[
+            ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
+        ]
+
+
+        sell_df = edited_df[
+            (edited_df["アラート"] == "🔴売り") &
+            (edited_df["⭐お気に入り"] == True)
+        ].copy()
+
         sell_df["乖離率(%)"] = (
             (sell_df["株価"] - sell_df["買いたい価格"])
             / sell_df["買いたい価格"]
             * 100
         ).round(1)
 
-        sell_df = sell_df[["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]]
+        sell_df = sell_df[
+            ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
+        ]
 
-        buy_df = buy_df.sort_values("乖離率(%)",ascending=False)
-        sell_df = sell_df.sort_values("乖離率(%)",ascending=False)
 
-        threshold = st.slider("表示する最低乖離率（％）", min_value=0,max_value=100,value=40,step=5)
+        # 数値として並べ替え。「なし」は最後
+        buy_df["_sort"] = pd.to_numeric(
+            buy_df["乖離率(%)"],
+            errors="coerce"
+        )
 
-        buy_df = buy_df[buy_df["乖離率(%)"]>= threshold]
-        sell_df = sell_df[sell_df["乖離率(%)"]>= threshold]
+        buy_df = buy_df.sort_values(
+            "_sort",
+            ascending=False,
+            na_position="last"
+        ).drop(columns="_sort")
+
+        sell_df = sell_df.sort_values(
+            "乖離率(%)",
+            ascending=False
+        )
+
+
+        threshold = st.slider(
+            "表示する最低乖離率（％）",
+            min_value=0,
+            max_value=100,
+            value=40,
+            step=5
+        )
+
+        # 数値の乖離率がthreshold以上、または「なし」
+        buy_df = buy_df[
+            (pd.to_numeric(buy_df["乖離率(%)"], errors="coerce") >= threshold) |
+            (buy_df["乖離率(%)"] == "なし")
+        ]
+
+        sell_df = sell_df[
+            sell_df["乖離率(%)"] >= threshold
+        ]
 
         col1, col2 = st.columns(2)
         with col1:
