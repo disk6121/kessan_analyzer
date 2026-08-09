@@ -147,7 +147,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
     with st.expander("🗂️ アラート点灯リスト"):
 
         buy_df = edited_df[(edited_df["アラート"] == "🟢買い")&(edited_df["⭐お気に入り"]==True)].copy()
-        if buy_df["売りたい価格"]:
+        if buy_df["売りたい価格"] is not None:
             buy_df["乖離率(%)"] = (
                 (buy_df["売りたい価格"] - buy_df["株価"])
                 / buy_df["株価"]
