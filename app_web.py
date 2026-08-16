@@ -58,6 +58,7 @@ df_db = get_watchlist()### companiesテーブルを取得
 # 保存日の新しい順に並べ替え
 df_db["saved_date"] = pd.to_datetime(df_db["saved_date"], format="mixed", errors="coerce", utc=True)
 df_db = df_db.sort_values("saved_date", ascending=False).reset_index(drop=True)
+df_db["saved_date"] = df_db["saved_date"].dt.tz_convert("Asia/Tokyo")
 
 df_db["alert_status"] = df_db.apply(get_alert_status,axis=1)###　最新の株価に基づき株価アラートを更新
 schedule_dict = get_schedule_dict("kessan_schedule.xlsx")
