@@ -2,11 +2,11 @@
 from database.supabase_client import supabase
 
 import json
-import datetime
 import streamlit as st
 import math
 import pandas as pd
-
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 def prepare_analysis_data(
         analysis,
@@ -97,6 +97,7 @@ def save_company(prepared):
 
     financial_pack = replace_nan(prepared["financial_pack"])
     user_forecast_json = replace_nan(meta.get("user_forecast",{}))
+    saved_at = datetime.now(ZoneInfo("Asia/Tokyo"))
 
     (
         supabase.table("companies")
@@ -105,7 +106,7 @@ def save_company(prepared):
                 "ticker" : meta["ticker"],
                 "company_name" : meta["company_name"],
                 "analyzed_period" : meta["analyzed_period"],
-                "saved_date" : prepared["today_str"],
+                "saved_date" :  saved_at.isoformat(),
                 "current_price" : meta.get("current_price"),
                 "per" : meta.get("per"),
                 "pbr" : meta.get("pbr"),
