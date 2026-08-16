@@ -16,7 +16,7 @@ def prepare_analysis_data(
 ):
 
     meta = analysis["meta"]
-    today_str = date.today().strftime("%Y/%m/%d")
+    today_str = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y/%m/%d")
 
     financial_pack = {
         "exchange_name":meta.get("exchange_name"),
