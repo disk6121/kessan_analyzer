@@ -1,5 +1,7 @@
 
 from datetime import date
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import pandas as pd
 import streamlit as st
 
@@ -101,10 +103,11 @@ def get_company_schedule(ticker, schedule_dict):
     return schedule_dict.get(str(ticker))
 
 
-
 def get_days_until_announcement(announcement_date):
     """
     決算までの日数を返す。
+
+    日本時間を基準に判定する。
 
     Returns
     -------
@@ -119,7 +122,12 @@ def get_days_until_announcement(announcement_date):
 
     target = announcement_date.date()
 
-    diff = (target - date.today()).days
+    # 日本時間の今日
+    today = datetime.now(
+        ZoneInfo("Asia/Tokyo")
+    ).date()
+
+    diff = (target - today).days
 
     if diff < 0:
         return "発表済"
@@ -137,6 +145,8 @@ def get_days_diff(announcement_date):
     """
     今日との差（日数）
 
+    日本時間を基準に判定する。
+
     今日      = 0
     明日      = 1
     昨日      = -1
@@ -146,6 +156,12 @@ def get_days_diff(announcement_date):
     if pd.isna(announcement_date):
         return None
 
-    return (announcement_date.date() - date.today()).days
+    # 日本時間の今日
+    today = datetime.now(
+        ZoneInfo("Asia/Tokyo")
+    ).date()
+
+    return (announcement_date.date() - today).days
+
 
 
