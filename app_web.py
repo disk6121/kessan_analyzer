@@ -214,7 +214,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             "表示する最低乖離率（％）",
             min_value=0,
             max_value=100,
-            value=40,
+            value=50,
             step=5
         )
 
