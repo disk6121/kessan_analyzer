@@ -98,6 +98,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
         "buy_target": "買いたい価格", "sell_target": "売りたい価格", "alert_status":"アラート","expectation": "決算期待度(%)",
         "announcement_display": "決算予定", "announcement_type": "決算種別"
     })
+    df_display["保存日"] = df_display["保存日"].dt.strftime("%Y-%-m-%-d %H:%M")
 
     edited_df = st.data_editor(###　表内の一部機能については編集可能
         df_display,
