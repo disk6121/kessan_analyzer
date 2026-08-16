@@ -5,8 +5,7 @@ import json
 import streamlit as st
 import math
 import pandas as pd
-import datetime
-from datetime import datetime
+from datetime import datetime, date
 from zoneinfo import ZoneInfo
 
 def prepare_analysis_data(
@@ -17,7 +16,7 @@ def prepare_analysis_data(
 ):
 
     meta = analysis["meta"]
-    today_str = datetime.date.today().strftime("%Y/%m/%d")
+    today_str = date.today().strftime("%Y/%m/%d")
 
     financial_pack = {
         "exchange_name":meta.get("exchange_name"),
