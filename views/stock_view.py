@@ -16,111 +16,103 @@ def render_stock_metrics(stock_meta):
     
     st.write("#### 📈 株価分析データ")
     if st.button(
-        "🔄 株価更新",
+        "🔄 株価指標更新",
         key=f"update_price_{ticker}"
     ):
 
-        latest_price = get_latest_stock_price(ticker)
-        if latest_price is None:
-            st.error("最新株価を取得できませんでした。")
-        else:
-            # --------------------------------
-            # 株価
-            # --------------------------------
-            price = latest_price
+        # --------------------------------
+        # 株価
+        # --------------------------------
+        price = safe_float(stock_meta.get("current_price"))
             
-            # --------------------------------
-            # 株式数
-            # --------------------------------
-            shares_issued = safe_float(
-                stock_meta.get("shares_issued", 0) or 0
-            )
-            treasury_shares = safe_float(
-                stock_meta.get("treasury_shares", 0) or 0
-            )
-            ns_shares = (
-                shares_issued - treasury_shares
-            )
+        # --------------------------------
+        # 株式数
+        # --------------------------------
+        shares_issued = safe_float(
+            stock_meta.get("shares_issued", 0) or 0
+        )
+        treasury_shares = safe_float(
+            stock_meta.get("treasury_shares", 0) or 0
+        )
+        ns_shares = (
+            shares_issued - treasury_shares
+        )
 
-            # --------------------------------
-            # EPS
-            # --------------------------------
-            eps_basic = safe_float(stock_meta.get("net_income_forecast")) / ns_shares
+        # --------------------------------
+        # EPS
+        # --------------------------------
+        eps_basic = safe_float(stock_meta.get("net_income_forecast")) / ns_shares
 
-            # --------------------------------
-            # PER
-            # --------------------------------
-            per = None
-            if (
-                price is not None
-                and eps_basic is not None
-                and eps_basic > 0
-            ):
-                per = price / eps_basic
+        # --------------------------------
+        # PER
+        # --------------------------------
+        per = None
+        if (
+            price is not None
+            and eps_basic is not None
+            and eps_basic > 0
+        ):
+            per = price / eps_basic
 
-            # --------------------------------
-            # 純資産
-            # --------------------------------
-            net_assets = safe_float(
-                stock_meta.get("net_assets", 0) or 0
-            )
+        # --------------------------------
+        # 純資産
+        # --------------------------------
+        net_assets = safe_float(
+            stock_meta.get("net_assets", 0) or 0
+        )
 
-            # --------------------------------
-            # PBR
-            # --------------------------------
-            pbr = None
-            if (
-                price is not None
-                and net_assets > 0
-                and ns_shares > 0
-            ):
-                bps = net_assets / ns_shares
-                if bps > 0:
-                    pbr = price / bps
+        # --------------------------------
+        # PBR
+        # --------------------------------
+        pbr = None
+        if (
+            price is not None
+            and net_assets > 0
+            and ns_shares > 0
+        ):
+            bps = net_assets / ns_shares
+            if bps > 0:
+                pbr = price / bps
 
-            # --------------------------------
-            # 配当利回り
-            # --------------------------------
-            dividend_forecast = safe_float(
-                stock_meta.get("dividend_forecast")
-            )
-            div_yield = None
-            if (
-                price is not None
-                and price > 0
-                and dividend_forecast is not None
-            ):
-                div_yield = (
-                    dividend_forecast
-                    / price
-                    * 100
-                )
-
-            # --------------------------------
-            # DB更新
-            # --------------------------------
-            success = update_stock_metrics(
-                ticker=ticker,
-                current_price=price,
-                per=per,
-                pbr=pbr,
-                div_yield=div_yield
+        # --------------------------------
+        # 配当利回り
+        # --------------------------------
+        dividend_forecast = safe_float(
+            stock_meta.get("dividend_forecast")
+        )
+        div_yield = None
+        if (
+            price is not None
+            and price > 0
+            and dividend_forecast is not None
+        ):
+            div_yield = (
+                dividend_forecast
+                / price
+                * 100
             )
 
-            if success:
-                # --------------------------------
-                # 現在のstock_metaも更新
-                # --------------------------------
-                stock_meta["current_price"] = price
-                stock_meta["per"] = per
-                stock_meta["pbr"] = pbr
-                stock_meta["div_yield"] = div_yield
+        # --------------------------------
+        # DB更新
+        # --------------------------------
+        success = update_stock_metrics(
+            ticker=ticker,
+            current_price=price,
+            per=per,
+            pbr=pbr,
+            div_yield=div_yield
+        )
 
-                st.success(
-                    f"株価を {price:,.1f} 円に更新しました"
-                )
+        if success:
+            # --------------------------------
+            # 現在のstock_metaも更新
+            # --------------------------------
+            stock_meta["current_price"] = price
+            stock_meta["per"] = per
+            stock_meta["pbr"] = pbr
+            stock_meta["div_yield"] = div_yield
 
-                st.rerun()
+            st.rerun()
 
     col_p1, col_p2, col_p3, col_p4 = st.columns(4)
     col_p5, col_p6, col_p7, col_p8 = st.columns(4)
