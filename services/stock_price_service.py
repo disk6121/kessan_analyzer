@@ -1,4 +1,5 @@
 import yfinance as yf
+import streamlit as st
 
 # ---------------------------------------------------------
 # 📈 yfinance による最新株価の取得
