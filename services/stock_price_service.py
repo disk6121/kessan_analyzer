@@ -47,39 +47,28 @@ def enrich_stock_price(stock_meta):
 
 
 def get_latest_stock_price(ticker):
-    """
-    Yahoo Financeから最新株価を取得する。
-    日本株の場合は .T を付ける。
-    """
+
     try:
-        ticker_yf = str(ticker).strip()
+        yf_code = f"{str(ticker).strip()}.T"
 
-        if not ticker_yf.endswith(".T"):
-            ticker_yf = f"{ticker_yf}.T"
+        prices = yf.download(
+            tickers=yf_code,
+            period="1d",
+            auto_adjust=False,
+            progress=False
+        )
 
-        stock = yf.Ticker(ticker_yf)
+        if prices is None or prices.empty:
+            return None
 
-        # fast_infoを優先
-        try:
-            price = stock.fast_info.get("last_price")
+        close = prices["Close"].dropna()
 
-            if price is not None:
-                return float(price)
+        if close.empty:
+            return None
 
-        except Exception:
-            pass
-
-        # fallback
-        hist = stock.history(period="5d")
-
-        if hist is not None and not hist.empty:
-            close = hist["Close"].dropna()
-
-            if not close.empty:
-                return float(close.iloc[-1])
+        return float(close.iloc[-1])
 
     except Exception as e:
-        st.warning(f"株価の取得に失敗しました: {e}")
-
-    return None
-
+        st.warning(f"株価取得エラー: {e}")
+        return None
+        
