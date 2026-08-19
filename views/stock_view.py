@@ -45,9 +45,7 @@ def render_stock_metrics(stock_meta):
             # --------------------------------
             # EPS
             # --------------------------------
-            eps_basic = safe_float(
-                stock_meta.get("eps_basic")
-            )
+            eps_basic = safe_float(stock_meta.get("net_income_forecast")) / ns_shares
 
             # --------------------------------
             # PER
