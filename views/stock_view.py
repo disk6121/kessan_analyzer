@@ -1,5 +1,6 @@
 import streamlit as st
-
+from services.stock_price_service import get_latest_stock_price
+from database.save_repository import
 
 # ---------------------------------------------------------
 # 📈 株価分析欄 
