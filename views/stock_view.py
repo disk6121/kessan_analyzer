@@ -11,7 +11,32 @@ def safe_float(x):
         return None
 
 def render_stock_metrics(stock_meta):
+    ticker = stock_meta.get("ticker")
+    
     st.write("#### 📈 株価分析データ")
+    if st.button(
+        "🔄 株価更新",
+        key=f"update_price_{ticker}"
+    ):
+        latest_price = get_latest_stock_price(ticker)
+        if latest_price is not None:
+            # session上のstock_metaを更新
+            stock_meta["current_price"] = latest_price
+            # DBにも保存
+            success = update_current_price(
+                ticker,
+                latest_price
+            )
+            if success:
+                st.success(
+                    f"株価を {latest_price:,.1f} 円に更新しました"
+                )
+                st.rerun()
+        else:
+            st.error(
+                "最新株価を取得できませんでした。"
+            )
+
     col_p1, col_p2, col_p3, col_p4 = st.columns(4)
     col_p5, col_p6, col_p7, col_p8 = st.columns(4)
     col_p9, col_p10, col_p11, col_p12 = st.columns(4)
