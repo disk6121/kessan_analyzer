@@ -42,3 +42,43 @@ def enrich_stock_price(stock_meta):
         stock_meta["div_yield"] = calc_div_yield(stock_meta["current_price"],stock_meta.get("dividend_forecast"))
 
     return stock_meta
+
+
+
+def get_latest_stock_price(ticker):
+    """
+    Yahoo Financeから最新株価を取得する。
+    日本株の場合は .T を付ける。
+    """
+    try:
+        ticker_yf = str(ticker).strip()
+
+        if not ticker_yf.endswith(".T"):
+            ticker_yf = f"{ticker_yf}.T"
+
+        stock = yf.Ticker(ticker_yf)
+
+        # fast_infoを優先
+        try:
+            price = stock.fast_info.get("last_price")
+
+            if price is not None:
+                return float(price)
+
+        except Exception:
+            pass
+
+        # fallback
+        hist = stock.history(period="5d")
+
+        if hist is not None and not hist.empty:
+            close = hist["Close"].dropna()
+
+            if not close.empty:
+                return float(close.iloc[-1])
+
+    except Exception as e:
+        st.warning(f"株価の取得に失敗しました: {e}")
+
+    return None
+
