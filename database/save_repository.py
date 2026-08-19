@@ -258,15 +258,25 @@ def save_common_note(note):
 
 
 
-def update_current_price(ticker, price):
+def update_stock_metrics(
+    ticker,
+    current_price,
+    per,
+    pbr,
+    div_yield
+):
     """
-    companiesテーブルのcurrent_priceだけを更新する
+    companiesテーブルの株価関連指標だけを更新する。
     """
+
     try:
         (
             supabase.table("companies")
             .update({
-                "current_price": price
+                "current_price": current_price,
+                "per": per,
+                "pbr": pbr,
+                "div_yield": div_yield,
             })
             .eq("ticker", ticker)
             .execute()
@@ -275,5 +285,5 @@ def update_current_price(ticker, price):
         return True
 
     except Exception as e:
-        st.error(f"株価の保存に失敗しました: {e}")
+        st.error(f"株価指標の保存に失敗しました: {e}")
         return False
