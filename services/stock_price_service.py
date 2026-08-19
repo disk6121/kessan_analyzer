@@ -52,8 +52,9 @@ def get_latest_stock_price(ticker):
         yf_code = f"{str(ticker).strip()}.T"
 
         prices = yf.download(
-            tickers=yf_code,
+            tickers=[yf_code],
             period="1d",
+            group_by="ticker",
             auto_adjust=False,
             progress=False
         )
@@ -61,14 +62,22 @@ def get_latest_stock_price(ticker):
         if prices is None or prices.empty:
             return None
 
-        close = prices["Close"].dropna()
+        latest_price = prices[yf_code]["Close"].iloc[-1]
 
-        if close.empty:
+        # 念のためSeriesなら値を取り出す
+        if isinstance(latest_price, pd.Series):
+            latest_price = latest_price.iloc[0]
+
+        if pd.isna(latest_price):
             return None
 
-        return float(close.iloc[-1])
+        return float(latest_price)
 
     except Exception as e:
-        st.warning(f"株価取得エラー: {e}")
+
+        st.warning(
+            f"株価取得エラー: {e}"
+        )
+
         return None
         
