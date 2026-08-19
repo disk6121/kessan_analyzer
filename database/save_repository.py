@@ -255,3 +255,25 @@ def save_common_note(note):
         })
         .execute()
     )
+
+
+
+def update_current_price(ticker, price):
+    """
+    companiesテーブルのcurrent_priceだけを更新する
+    """
+    try:
+        (
+            supabase.table("companies")
+            .update({
+                "current_price": price
+            })
+            .eq("ticker", ticker)
+            .execute()
+        )
+
+        return True
+
+    except Exception as e:
+        st.error(f"株価の保存に失敗しました: {e}")
+        return False
