@@ -225,6 +225,7 @@ def load_peer_summary(ticker):
         user_fc_per = price / user_fc_eps
     financial_meta = load_json(meta_row["financial_meta_json"])
     exchange_name = financial_meta.get("exchange_name") if financial_meta else "不明"
+    equity_ratio = safe_float(financial_meta.get("equity_ratio")) or 0
 
     return {
       "会社名": meta_row["company_name"],
@@ -233,7 +234,8 @@ def load_peer_summary(ticker):
       "PER": f"{float(meta_row["per"]):.2f}" if meta_row["per"] else "",
       "独自予想PER": f"{float(user_fc_per):.2f}" if user_fc_per else "",
       "PBR": f"{float(meta_row["pbr"]):.2f}" if meta_row["pbr"] else "",
-      "配当利回り": F"{float(meta_row["div_yield"]):.2f}%" if meta_row["div_yield"] else "",
+      "配当利回り": f"{float(meta_row["div_yield"]):.2f}%" if meta_row["div_yield"] else "",
+      "自己資本比率": f{float(equity_ratio):.2f}%" if equity_ratio else "",
       "通期実績売上": str(int(annual_sales)) if annual_sales else "",
       "売上成長率": f"{sales_growth:.1f}%" if sales_growth else "",
       "通期実績営業利益率": margin
