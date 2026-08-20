@@ -85,7 +85,7 @@ def render_peer_comparison(tic,comp,analysis):
             "独自予想PER": round(float(user_fc_per), 2) if user_fc_per is not None else "",
             "PBR": round(float(meta_row["pbr"]), 2) if meta_row and meta_row["pbr"] is not None else "",
             "配当利回り": round(float(meta_row["div_yield"]), 2) if meta_row and meta_row["div_yield"] is not None else "",
-            "自己資本比率": round(float(equity_ratio), 2) if equity_ratio is not None else "",
+            "自己資本比率": round(float(equity_ratio), 1) if equity_ratio is not None else "",
             "通期実績売上": int(annual_sales) if annual_sales else "",
             "売上成長率": f"{sales_growth:.1f}%" if sales_growth is not None else "",
             "通期実績営業利益率": f"{op_margin:.1f}%" if op_margin is not None else ""
@@ -120,7 +120,7 @@ def render_peer_comparison(tic,comp,analysis):
         "独自予想PER": (f"{user_fc_per:.2f}" if user_fc_per is not None else ""),
         "PBR": f"{float(meta_row["pbr"]):.2f}" if meta_row and meta_row["pbr"] not in (None, "") else "",
         "配当利回り": f"{float(meta_row["div_yield"]):.2f}%" if meta_row and meta_row["div_yield"] not in (None, "") else "",
-        "自己資本比率": (f"{equity_ratio:.2f}%" if equity_ratio is not None else ""),
+        "自己資本比率": (f"{equity_ratio:.1f}%" if equity_ratio is not None else ""),
         "通期実績売上": str(int(annual_sales)) if annual_sales else "",
         "売上成長率": f"{sales_growth:.1f}%" if sales_growth is not None else "",
         "通期実績営業利益率": f"{op_margin:.1f}%" if op_margin is not None else ""
