@@ -116,7 +116,7 @@ def render_peer_comparison(tic,comp,analysis):
         "PER": f"{float(meta_row["per"]):.2f}" if meta_row and meta_row["per"] not in (None, "") else "",
         "独自予想PER": (f"{user_fc_per:.2f}" if user_fc_per is not None else ""),
         "PBR": f"{float(meta_row["pbr"]):.2f}" if meta_row and meta_row["pbr"] not in (None, "") else "",
-        "配当利回り": f"{float(meta_row["div_yield"]:.2f}" if meta_row and meta_row["div_yield"] not in (None, "") else "",
+        "配当利回り": f"{float(meta_row["div_yield"]):.2f}" if meta_row and meta_row["div_yield"] not in (None, "") else "",
         "通期実績売上": str(int(annual_sales)) if annual_sales else "",
         "売上成長率": f"{sales_growth:.1f}%" if sales_growth is not None else "",
         "通期実績営業利益率": f"{op_margin:.1f}%" if op_margin is not None else ""
