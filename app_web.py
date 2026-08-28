@@ -151,225 +151,223 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
 
 
 # 【1-5】買いシグナル、売りシグナル銘柄の一覧表示
-with st.expander("🗂️ アラート点灯リスト"):
+    with st.expander("🗂️ アラート点灯リスト"):
 
-    # =========================================================
-    # ① 買いシグナルの元データ
-    #    「買い」＋「お気に入りON」
-    # =========================================================
-    buy_all_df = edited_df[
-        (edited_df["アラート"] == "🟢買い") &
-        (edited_df["⭐お気に入り"] == True)
-    ].copy()
+        # =========================================================
+        # ① 買いシグナルの元データ
+        #    「買い」＋「お気に入りON」
+        # =========================================================
+        buy_all_df = edited_df[
+            (edited_df["アラート"] == "🟢買い") &
+            (edited_df["⭐お気に入り"] == True)
+        ].copy()
 
-    # 乖離率を計算
-    buy_all_df["乖離率(%)"] = (
-        (buy_all_df["売りたい価格"] - buy_all_df["株価"])
-        / buy_all_df["株価"]
-        * 100
-    ).round(1)
+        # 乖離率を計算
+        buy_all_df["乖離率(%)"] = (
+            (buy_all_df["売りたい価格"] - buy_all_df["株価"])
+            / buy_all_df["株価"]
+            * 100
+        ).round(1)
 
-    # 売りたい価格が未入力の場合は「なし」
-    buy_all_df["乖離率(%)"] = buy_all_df["乖離率(%)"].astype(object)
+        # 売りたい価格が未入力の場合は「なし」
+        buy_all_df["乖離率(%)"] = buy_all_df["乖離率(%)"].astype(object)
 
-    buy_all_df.loc[
-        buy_all_df["売りたい価格"].isna() |
-        (buy_all_df["売りたい価格"] == ""),
-        "乖離率(%)"
-    ] = "なし"
-
-
-    # =========================================================
-    # ② 売りシグナル
-    #    現在と同じ条件
-    # =========================================================
-    sell_df = edited_df[
-        (edited_df["アラート"] == "🔴売り") &
-        (edited_df["⭐お気に入り"] == True)
-    ].copy()
-
-    sell_df["乖離率(%)"] = (
-        (sell_df["株価"] - sell_df["買いたい価格"])
-        / sell_df["買いたい価格"]
-        * 100
-    ).round(1)
-
-    sell_df = sell_df[
-        ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
-    ]
+        buy_all_df.loc[
+            buy_all_df["売りたい価格"].isna() |
+            (buy_all_df["売りたい価格"] == ""),
+            "乖離率(%)"
+        ] = "なし"
 
 
-    # =========================================================
-    # ③ 「買いシグナル」＋「売りたい価格なし」
-    # =========================================================
-    buy_no_sell_target_df = buy_all_df[
-        buy_all_df["乖離率(%)"] == "なし"
-    ].copy()
+        # =========================================================
+        # ② 売りシグナル
+        #    現在と同じ条件
+        # =========================================================
+        sell_df = edited_df[
+            (edited_df["アラート"] == "🔴売り") &
+            (edited_df["⭐お気に入り"] == True)
+        ].copy()
 
-    buy_no_sell_target_df = buy_no_sell_target_df[
-        ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
-    ]
+        sell_df["乖離率(%)"] = (
+            (sell_df["株価"] - sell_df["買いたい価格"])
+            / sell_df["買いたい価格"]
+            * 100
+        ).round(1)
 
-
-    # =========================================================
-    # ④ 「お気に入りOFF」＋「買いシグナル」
-    # =========================================================
-    buy_unfavorite_df = edited_df[
-        (edited_df["アラート"] == "🟢買い") &
-        (edited_df["⭐お気に入り"] != True)
-    ].copy()
-
-    # お気に入りOFFの買いシグナルについても
-    # 参考として乖離率を計算
-    buy_unfavorite_df["乖離率(%)"] = (
-        (buy_unfavorite_df["売りたい価格"] - buy_unfavorite_df["株価"])
-        / buy_unfavorite_df["株価"]
-        * 100
-    ).round(1)
-
-    buy_unfavorite_df["乖離率(%)"] = buy_unfavorite_df["乖離率(%)"].astype(object)
-
-    buy_unfavorite_df.loc[
-        buy_unfavorite_df["売りたい価格"].isna() |
-        (buy_unfavorite_df["売りたい価格"] == ""),
-        "乖離率(%)"
-    ] = "なし"
-
-    buy_unfavorite_df = buy_unfavorite_df[
-        ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
-    ]
+        sell_df = sell_df[
+            ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
+        ]
 
 
-    # =========================================================
-    # ⑤ 並べ替え
-    # =========================================================
+        # =========================================================
+        # ③ 「買いシグナル」＋「売りたい価格なし」
+        # =========================================================
+        buy_no_sell_target_df = buy_all_df[
+            buy_all_df["乖離率(%)"] == "なし"
+        ].copy()
 
-    # 買いシグナル
-    # 「なし」は通常の買いシグナルから除外するので、
-    # 数値だけを対象に並べ替え
-    buy_df = buy_all_df[
-        buy_all_df["乖離率(%)"] != "なし"
-    ].copy()
-
-    buy_df = buy_df[
-        ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
-    ]
-
-    buy_df["_sort"] = pd.to_numeric(
-        buy_df["乖離率(%)"],
-        errors="coerce"
-    )
-
-    buy_df = buy_df.sort_values(
-        "_sort",
-        ascending=False
-    ).drop(columns="_sort")
+        buy_no_sell_target_df = buy_no_sell_target_df[
+            ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
+        ]
 
 
-    # 「売りたい価格なし」
-    buy_no_sell_target_df["_sort"] = pd.to_numeric(
-        buy_no_sell_target_df["乖離率(%)"],
-        errors="coerce"
-    )
+        # =========================================================
+        # ④ 「お気に入りOFF」＋「買いシグナル」
+        # =========================================================
+        buy_unfavorite_df = edited_df[
+            (edited_df["アラート"] == "🟢買い") &
+            (edited_df["⭐お気に入り"] != True)
+        ].copy()
 
-    buy_no_sell_target_df = buy_no_sell_target_df.sort_values(
-        "_sort",
-        ascending=False,
-        na_position="last"
-    ).drop(columns="_sort")
+        # お気に入りOFFの買いシグナルについても
+        # 参考として乖離率を計算
+        buy_unfavorite_df["乖離率(%)"] = (
+            (buy_unfavorite_df["売りたい価格"] - buy_unfavorite_df["株価"])
+            / buy_unfavorite_df["株価"]
+            * 100
+        ).round(1)
 
+        buy_unfavorite_df["乖離率(%)"] = buy_unfavorite_df["乖離率(%)"].astype(object)
 
-    # お気に入りOFF
-    buy_unfavorite_df["_sort"] = pd.to_numeric(
-        buy_unfavorite_df["乖離率(%)"],
-        errors="coerce"
-    )
+        buy_unfavorite_df.loc[
+            buy_unfavorite_df["売りたい価格"].isna() |
+            (buy_unfavorite_df["売りたい価格"] == ""),
+            "乖離率(%)"
+        ] = "なし"
 
-    buy_unfavorite_df = buy_unfavorite_df.sort_values(
-        "_sort",
-        ascending=False,
-        na_position="last"
-    ).drop(columns="_sort")
-
-
-    # 売りシグナル
-    sell_df = sell_df.sort_values(
-        "乖離率(%)",
-        ascending=False
-    )
+        buy_unfavorite_df = buy_unfavorite_df[
+            ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
+        ]
 
 
-    # =========================================================
-    # ⑥ 最低乖離率スライダー
-    # =========================================================
-    threshold = st.slider(
-        "表示する最低乖離率（％）",
-        min_value=0,
-        max_value=100,
-        value=50,
-        step=5
-    )
+        # =========================================================
+        # ⑤ 並べ替え
+        # =========================================================
 
+        # 買いシグナル
+        # 「なし」は通常の買いシグナルから除外するので、
+        # 数値だけを対象に並べ替え
+        buy_df = buy_all_df[
+            buy_all_df["乖離率(%)"] != "なし"
+        ].copy()
 
-    # 通常の買いシグナル
-    # 「なし」はすでに除外済み
-    buy_df = buy_df[
-        buy_df["乖離率(%)"] >= threshold
-    ]
+        buy_df = buy_df[
+            ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
+        ]
 
-
-    # 売りシグナル
-    sell_df = sell_df[
-        sell_df["乖離率(%)"] >= threshold
-    ]
-
-
-    # =========================================================
-    # ⑦ 4つのリストを2段×2列で表示
-    # =========================================================
-
-    # ---------- 1段目 ----------
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.success(
-            f"🟢 買いシグナル {len(buy_df)}件"
-        )
-        st.dataframe(
-            buy_df,
-            width="stretch"
+        buy_df["_sort"] = pd.to_numeric(
+            buy_df["乖離率(%)"],
+            errors="coerce"
         )
 
-    with col2:
-        st.warning(
-            f"🔴 売りシグナル {len(sell_df)}件"
+        buy_df = buy_df.sort_values(
+            "_sort",
+            ascending=False
+        ).drop(columns="_sort")
+
+
+        # 「売りたい価格なし」
+        buy_no_sell_target_df["_sort"] = pd.to_numeric(
+            buy_no_sell_target_df["乖離率(%)"],
+            errors="coerce"
         )
-        st.dataframe(
-            sell_df,
-            width="stretch"
+
+        buy_no_sell_target_df = buy_no_sell_target_df.sort_values(
+            "_sort",
+            ascending=False,
+            na_position="last"
+        ).drop(columns="_sort")
+
+
+        # お気に入りOFF
+        buy_unfavorite_df["_sort"] = pd.to_numeric(
+            buy_unfavorite_df["乖離率(%)"],
+            errors="coerce"
+        )
+
+        buy_unfavorite_df = buy_unfavorite_df.sort_values(
+            "_sort",
+            ascending=False,
+            na_position="last"
+        ).drop(columns="_sort")
+
+
+        # 売りシグナル
+        sell_df = sell_df.sort_values(
+            "乖離率(%)",
+            ascending=False
         )
 
 
-    # ---------- 2段目 ----------
-    col3, col4 = st.columns(2)
+        # =========================================================
+        # ⑥ 最低乖離率スライダー
+        # =========================================================
+        threshold = st.slider(
+            "表示する最低乖離率（％）",
+            min_value=0,
+            max_value=100,
+            value=50,
+            step=5
+        )
 
-    with col3:
-        st.info(
-            f"🟢 買いシグナル・売りたい価格なし {len(buy_no_sell_target_df)}件"
-        )
-        st.dataframe(
-            buy_no_sell_target_df,
-            width="stretch"
-        )
 
-    with col4:
-        st.info(
-            f"🟢 買いシグナル・お気に入りOFF {len(buy_unfavorite_df)}件"
-        )
-        st.dataframe(
-            buy_unfavorite_df,
-            width="stretch"
-        )
+        # 通常の買いシグナル
+        # 「なし」はすでに除外済み
+        buy_df = buy_df[
+            buy_df["乖離率(%)"] >= threshold
+        ]
+
+
+        # 売りシグナル
+        sell_df = sell_df[
+            sell_df["乖離率(%)"] >= threshold
+        ]
+
+        # =========================================================
+        # ⑦ 4つのリストを2段×2列で表示
+        # =========================================================
+
+        # ---------- 1段目 ----------
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.success(
+                f"🟢 買いシグナル {len(buy_df)}件"
+            )
+            st.dataframe(
+                buy_df,
+                width="stretch"
+            )
+
+        with col2:
+            st.warning(
+                f"🔴 売りシグナル {len(sell_df)}件"
+            )
+            st.dataframe(
+                sell_df,
+                width="stretch"
+            )
+
+        # ---------- 2段目 ----------
+        col3, col4 = st.columns(2)
+
+        with col3:
+            st.info(
+                f"🟢 買いシグナル・大型優良株 {len(buy_no_sell_target_df)}件"
+            )
+            st.dataframe(
+                buy_no_sell_target_df,
+                width="stretch"
+            )
+
+        with col4:
+            st.info(
+                f"🟢 その他の割安株 {len(buy_unfavorite_df)}件"
+            )
+            st.dataframe(
+                buy_unfavorite_df,
+                width="stretch"
+            )
 
 # 【1-6】決算発表スケジュール
     with st.expander("📅 決算発表スケジュール"):
