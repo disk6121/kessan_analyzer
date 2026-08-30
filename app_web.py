@@ -122,11 +122,11 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             st.rerun()
 
     with col_btn2:
-        st.markdown("🗑️ **削除する企業**")
+        # st.markdown("🗑️ **削除する企業**")
         # 証券コードを手入力
         delete_ticker_input = st.text_input(
             "証券コード",
-            placeholder="例：7203",
+            placeholder="削除する企業の証券コードを入力　例：7203",
             label_visibility="collapsed",
             key="delete_ticker_input"
         )
