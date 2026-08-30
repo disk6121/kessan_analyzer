@@ -218,10 +218,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
         # ② 売りシグナル
         #    現在と同じ条件
         # =========================================================
-        sell_df = edited_df[
-            (edited_df["アラート"] == "🔴売り") &
-            (edited_df["⭐お気に入り"] == True)
-        ].copy()
+        sell_df = edited_df[(edited_df["アラート"] == "🔴売り")].copy()
 
         sell_df["乖離率(%)"] = (
             (sell_df["株価"] - sell_df["買いたい価格"])
