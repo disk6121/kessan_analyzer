@@ -122,15 +122,50 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
             st.rerun()
 
     with col_btn2:
-        delete_options = {f"[{row['ticker']}] {row['company_name']}": row['ticker'] for _, row in df_db.iterrows()}
-        target_to_delete = st.selectbox("🗑️ 削除する企業を選択", options=[None] + list(delete_options.keys()), index=0, label_visibility="collapsed")
-   
-        if target_to_delete:
-            ticker_to_delete = delete_options[target_to_delete]
-            if st.button(f"🚨 {ticker_to_delete} を完全に削除", type="primary", width="stretch"):
-                delete_company(ticker_to_delete)
-                st.success(f"🗑️ {ticker_to_delete} のデータを削除しました。")
-                st.rerun()
+        st.markdown("🗑️ **削除する企業**")
+        # 証券コードを手入力
+        delete_ticker_input = st.text_input(
+            "証券コード",
+            placeholder="例：7203",
+            label_visibility="collapsed",
+            key="delete_ticker_input"
+        )
+        if delete_ticker_input:
+            # 前後の空白を削除
+            ticker_to_delete = delete_ticker_input.strip().upper()
+            # 入力された証券コードに一致する企業を検索
+            matched = df_db[
+                df_db["ticker"].astype(str).str.upper() == ticker_to_delete
+            ]
+
+            if len(matched) == 0:
+
+                st.warning(
+                    f"証券コード「{ticker_to_delete}」の企業は"
+                    "ウォッチリストにありません。"
+                )
+
+            else:
+                company_name = matched.iloc[0]["company_name"]
+    
+                st.warning(
+                    f"⚠️ **{company_name}** のデータを削除しますか？"
+                )
+
+                if st.button(
+                    f"🚨 {ticker_to_delete} を完全に削除",
+                    type="primary",
+                    width="stretch",
+                    key="delete_company_button"
+                ):
+                    delete_company(ticker_to_delete)
+
+                    st.success(
+                        f"🗑️ [{ticker_to_delete}] "
+                        f"{company_name} のデータを削除しました。"
+                    )
+
+                    st.rerun()
 
 
 # 【1-4】全体メモ欄
