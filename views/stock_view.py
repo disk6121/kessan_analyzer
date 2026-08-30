@@ -172,7 +172,7 @@ def render_stock_metrics(stock_meta):
 
     if (
         price is not None
-        year1_net_income is not None
+        and year1_net_income is not None
         and year1_net_income > 0
         and ns_shares > 0
     ):
@@ -181,7 +181,7 @@ def render_stock_metrics(stock_meta):
 
     if (
         price is not None
-        year2_net_income is not None
+        and year2_net_income is not None
         and year2_net_income > 0
         and ns_shares > 0
     ):
