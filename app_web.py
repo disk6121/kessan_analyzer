@@ -203,13 +203,30 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
         # ③ 「買いシグナル」＋「売りたい価格なし」
         # =========================================================
         buy_no_sell_target_df = buy_all_df[
-            buy_all_df["乖離率(%)"] == "なし"
+            (buy_all_df["乖離率(%)"] == "なし") &
+            (buy_all_df["買いたい価格"].notna()) &
+            (buy_all_df["買いたい価格"] != "") &
+            (buy_all_df["株価"].notna())
         ].copy()
 
+        # 割安度を計算
+        # 割安度（%）= (買いたい価格 - 現在価格) / 買いたい価格 × 100
+        buy_no_sell_target_df["割安度(%)"] = (
+            (buy_no_sell_target_df["買いたい価格"] - buy_no_sell_target_df["株価"])
+            / buy_no_sell_target_df["買いたい価格"]
+            * 100
+        ).round(1)
+
+        # 必要な列だけ表示
         buy_no_sell_target_df = buy_no_sell_target_df[
-            ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
+            ["証券コード", "企業名", "割安度(%)", "決算期待度(%)"]
         ]
 
+        # 割安度の降順
+        buy_no_sell_target_df = buy_no_sell_target_df.sort_values(
+            "割安度(%)",
+            ascending=False
+        )
 
         # =========================================================
         # ④ 「お気に入りOFF」＋「買いシグナル」
