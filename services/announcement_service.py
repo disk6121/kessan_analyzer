@@ -59,7 +59,7 @@ def load_schedule(excel_path) -> pd.DataFrame:
     return df
 
 
-@st.cache_data 
+
 def get_schedule_dict(excel_path) -> dict:
     """
     tickerをキーにした辞書を返す。
