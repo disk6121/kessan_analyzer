@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 
-
+@st.cache_data 
 def load_schedule(excel_path) -> pd.DataFrame:
     """
     JPXの決算発表予定Excelを読み込み、
@@ -59,7 +59,7 @@ def load_schedule(excel_path) -> pd.DataFrame:
     return df
 
 
-
+@st.cache_data 
 def get_schedule_dict(excel_path) -> dict:
     """
     tickerをキーにした辞書を返す。
