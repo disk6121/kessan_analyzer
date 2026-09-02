@@ -285,7 +285,7 @@ if not df_db.empty:###　companiesテーブルの項目を日本語名に置き�
         ] = "なし"
 
         buy_unfavorite_df = buy_unfavorite_df[
-            ["証券コード", "企業名", "乖離率(%)", "決算期待度(%)"]
+            ["証券コード", "企業名", "乖離率(%)", "投資メモ"]
         ]
 
 
