@@ -25,7 +25,7 @@ def load_schedule(excel_path) -> pd.DataFrame:
     df = pd.read_excel(
         excel_path,
         sheet_name="List",
-        header=5
+        header=4
     )
 
     df = df.rename(columns={
