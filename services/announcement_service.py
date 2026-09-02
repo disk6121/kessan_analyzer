@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 
-@st.cache_data
+
 def load_schedule(excel_path) -> pd.DataFrame:
     """
     JPXの決算発表予定Excelを読み込み、
@@ -25,7 +25,7 @@ def load_schedule(excel_path) -> pd.DataFrame:
     df = pd.read_excel(
         excel_path,
         sheet_name="List",
-        header=4
+        header=5
     )
 
     df = df.rename(columns={
