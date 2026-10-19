@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from utils.chart_utils import draw_growth_arrow
 from utils.quarters_utils import process_to_8quarters
+from io import BytesIO
 
 from matplotlib import font_manager
 import matplotlib.pyplot as plt
@@ -66,7 +67,16 @@ def render_quarter_chart(combined_data,kpi_data=None,selected_kpi=None):
             ax2.set_title("単四半期 営業利益率の推移", weight='bold')
             ax2.grid(axis='y', linestyle='--')
             ax2_twin = ax2.twinx()
-            ax2_twin.plot(df_8q_clean["Period"], df_8q_clean["Margin(%)"], color="crimson", marker="o", lw=2, label="営業利益率")
-            st.write("デバッグ：グラフ描画処理まで到達")
-            st.pyplot(fig)
+            ax2_twin.plot(df_8q_clean["Period"], df_8q_clean["Margin(%)"], color="crimson", marker="o", lw=2, label="営業利益率")               
+            buf = BytesIO()
+            fig.savefig(
+                buf,
+                format="png",
+                dpi=150,
+                bbox_inches="tight"
+            )
+            buf.seek(0)
+
+            st.image(buf, width="stretch")
+            plt.close(fig)
 
