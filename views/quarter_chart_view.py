@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import base64
 
 from utils.chart_utils import draw_growth_arrow
 from utils.quarters_utils import process_to_8quarters
