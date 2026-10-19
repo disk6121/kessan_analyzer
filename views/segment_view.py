@@ -29,7 +29,7 @@ def render_segment_analysis(df_pivot_rev,df_pivot_prof):
         plt.tight_layout()
 
         buf = BytesIO()
-        fig.savefig(
+        fig_seg.savefig(
             buf,
             format="png",
             dpi=150,
