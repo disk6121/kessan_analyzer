@@ -67,5 +67,6 @@ def render_quarter_chart(combined_data,kpi_data=None,selected_kpi=None):
             ax2.grid(axis='y', linestyle='--')
             ax2_twin = ax2.twinx()
             ax2_twin.plot(df_8q_clean["Period"], df_8q_clean["Margin(%)"], color="crimson", marker="o", lw=2, label="営業利益率")
+            st.write("デバッグ：グラフ描画処理まで到達")
             st.pyplot(fig)
 
