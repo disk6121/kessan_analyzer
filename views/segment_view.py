@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
 
 
 def render_segment_analysis(df_pivot_rev,df_pivot_prof):
@@ -25,5 +27,22 @@ def render_segment_analysis(df_pivot_rev,df_pivot_prof):
         ax_seg2.set_ylabel("セグメント利益（百万円）")
         ax_seg2.set_xticklabels(ax_seg2.get_xticklabels(), rotation=0)
         plt.tight_layout()
-        st.pyplot(fig_seg)
 
+        buf = BytesIO()
+        fig.savefig(
+            buf,
+            format="png",
+            dpi=150,
+            bbox_inches="tight"
+        )
+
+        # PNG画像をBase64に変換
+        b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+        # HTMLに画像を直接埋め込んで表示
+        st.html(
+            f'<img src="data:image/png;base64,{b64}" '
+            'style="width:100%; height:auto;">'
+        )
+
+        plt.close(fig_seg)
