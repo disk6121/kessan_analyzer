@@ -68,6 +68,7 @@ def render_quarter_chart(combined_data,kpi_data=None,selected_kpi=None):
             ax2.grid(axis='y', linestyle='--')
             ax2_twin = ax2.twinx()
             ax2_twin.plot(df_8q_clean["Period"], df_8q_clean["Margin(%)"], color="crimson", marker="o", lw=2, label="営業利益率")               
+
             buf = BytesIO()
             fig.savefig(
                 buf,
@@ -75,8 +76,14 @@ def render_quarter_chart(combined_data,kpi_data=None,selected_kpi=None):
                 dpi=150,
                 bbox_inches="tight"
             )
-            buf.seek(0)
 
-            st.image(buf, width="stretch")
+            # PNG画像をBase64に変換
+            b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+            # HTMLに画像を直接埋め込んで表示
+            st.html(
+                f'<img src="data:image/png;base64,{b64}" '
+                'style="width:100%; height:auto;">'
+            )
+
             plt.close(fig)
-
