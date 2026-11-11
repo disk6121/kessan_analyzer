@@ -7,7 +7,7 @@ from services.forecast_service import update_user_forecast
 
 def calculate_ttm(combined_data, period_str):
     """
-    直近4四半期実績を計算する。
+    直近1年実績を計算する。
     TTM = 当期累計 - 前年同期累計 + 前期通期実績
     """
 
@@ -106,7 +106,7 @@ def render_user_forecast(stock_meta, combined_data=None):
     year1 = user_fc.get("year1", {})
     year2 = user_fc.get("year2", {})
 
-    # 直近4四半期実績を計算
+    # 直近1年実績を計算
     period_str = stock_meta.get("analyzed_period", "")
 
     ttm = calculate_ttm(
@@ -131,7 +131,7 @@ def render_user_forecast(stock_meta, combined_data=None):
         {
             "項目": "売上高",
             **(
-                {"直近4四半期実績": format_ttm(ttm["revenue"])}
+                {"直近1年実績": format_ttm(ttm["revenue"])}
                 if is_ttm_display else {}
             ),
             "独自予想(1期目)": year1.get("revenue"),
@@ -140,7 +140,7 @@ def render_user_forecast(stock_meta, combined_data=None):
         {
             "項目": "売上総利益",
             **(
-                {"直近4四半期実績": "-"}
+                {"直近1年実績": "-"}
                 if is_ttm_display else {}
             ),
             "独自予想(1期目)": year1.get("gross_profit"),
@@ -149,7 +149,7 @@ def render_user_forecast(stock_meta, combined_data=None):
         {
             "項目": "営業利益",
             **(
-                {"直近4四半期実績": format_ttm(ttm["operating_income"])}
+                {"直近1年実績": format_ttm(ttm["operating_income"])}
                 if is_ttm_display else {}
             ),
             "独自予想(1期目)": year1.get("operating_income"),
@@ -158,7 +158,7 @@ def render_user_forecast(stock_meta, combined_data=None):
         {
             "項目": "経常利益",
             **(
-                {"直近4四半期実績": "-"}
+                {"直近1年実績": "-"}
                 if is_ttm_display else {}
             ),
             "独自予想(1期目)": year1.get("ordinary_income"),
@@ -167,7 +167,7 @@ def render_user_forecast(stock_meta, combined_data=None):
         {
             "項目": "純利益",
             **(
-                {"直近4四半期実績": format_ttm(ttm["net_income"])}
+                {"直近1年実績": format_ttm(ttm["net_income"])}
                 if is_ttm_display else {}
             ),
             "独自予想(1期目)": year1.get("net_income"),
@@ -185,7 +185,7 @@ def render_user_forecast(stock_meta, combined_data=None):
             st.write("✏️ 独自収支予想")
 
             disabled_columns = (
-                ["直近4四半期実績"]
+                ["直近1年実績"]
                 if is_ttm_display else []
             )
 
@@ -212,9 +212,9 @@ def render_user_forecast(stock_meta, combined_data=None):
 
     if submitted:
 
-        # 直近4四半期実績列は保存対象から除外
+        # 直近1年実績列は保存対象から除外
         save_df = edited_df.drop(
-            columns=["直近4四半期実績"],
+            columns=["直近1年実績"],
             errors="ignore"
         )
 
