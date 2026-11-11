@@ -125,7 +125,7 @@ def render_user_forecast(stock_meta, combined_data=None):
     def format_ttm(value):
         if value is None:
             return "-"
-        return f"{value:,.0f} 百万円"
+        return f"{value:,.0f} "
 
     rows = [
         {
