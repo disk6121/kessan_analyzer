@@ -38,7 +38,7 @@ def render_analysis_visuals(stock_meta, combined_data, seg_by_quarter):
 
     render_progress_table(stock_meta, combined_data)
 
-    render_user_forecast(stock_meta)
+    render_user_forecast(stock_meta, combined_data)
     
     st.divider()
     
