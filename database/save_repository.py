@@ -213,7 +213,7 @@ def save_companies_memo_pre(edited_df):
 
 def save_companies_memo(edited_df):
 
-    edited_rows = st.session_state.get("editor", {}).get("edited_rows", {})
+    edited_rows = st.session_state.get("editor_v2", {}).get("edited_rows", {})
 
     if not edited_rows:
         return
