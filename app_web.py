@@ -38,10 +38,6 @@ api_key = os.environ.get("GEMINI_API_KEY")
 if not api_key:
     api_key = st.sidebar.text_input("Gemini API Keyを入力してください", type="password")
 
-
-ALTER TABLE public.companies
-ADD COLUMN IF NOT EXISTS is_short_term BOOLEAN DEFAULT FALSE;
-
 # ---------------------------------------------------------
 # 【構成１】ウォッチリスト（既存データ）
 # ---------------------------------------------------------
