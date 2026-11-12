@@ -220,19 +220,27 @@ def save_companies_memo(edited_df):
 
     for row_index, changes in edited_rows.items():
 
-        row = edited_df.iloc[row_index]
+        row = edited_df.iloc[int(row_index)]
 
         data = {}
 
-        if "⭐お気に入り" in changes:
-            data["is_favorite"] = bool(row["⭐お気に入り"])
+        # 長期投資候補
+        if "長期投資候補" in changes:
+            data["is_favorite"] = bool(row["長期投資候補"])
 
+        # 短期投資候補
+        if "短期投資候補" in changes:
+            data["is_short_term"] = bool(row["短期投資候補"])
+
+        # 投資メモ
         if "投資メモ" in changes:
             data["investment_memo"] = clean(row["投資メモ"])
 
+        # 買いたい価格
         if "買いたい価格" in changes:
             data["buy_target"] = clean(row["買いたい価格"])
 
+        # 売りたい価格
         if "売りたい価格" in changes:
             data["sell_target"] = clean(row["売りたい価格"])
 
@@ -243,6 +251,7 @@ def save_companies_memo(edited_df):
                 .eq("ticker", row["証券コード"])
                 .execute()
             )
+
 
 
 def save_common_note(note):
