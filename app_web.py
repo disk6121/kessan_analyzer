@@ -188,7 +188,7 @@ if not df_db.empty:
     with col_btn1:
         if st.button("📌 リストの変更（チェック・メモ）を保存する", width="stretch"):
             save_companies_memo(edited_df)
-            st.success("リストの変更内容をSQLiteに保存しました！")
+            st.success("リストの変更内容をSupabaseに保存しました！")
             st.rerun()
 
     with col_btn2:
