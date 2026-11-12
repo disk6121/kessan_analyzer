@@ -255,136 +255,136 @@ if not df_db.empty:
 
 
 # 【1-5】アラート点灯リスト
-with st.expander("🗂️ アラート点灯リスト"):
+    with st.expander("🗂️ アラート点灯リスト"):
 
     # =========================================================
     # ① 乖離率スライダー
     # =========================================================
-    threshold = st.slider(
-        "参考銘柄に表示する最低乖離率（％）",
-        min_value=0,
-        max_value=100,
-        value=50,
-        step=5
-    )
+        threshold = st.slider(
+            "参考銘柄に表示する最低乖離率（％）",
+            min_value=0,
+            max_value=100,
+            value=50,
+            step=5
+        )
 
     # =========================================================
     # ② 数値データの準備
     # =========================================================
-    alert_data = edited_df.copy()
+        alert_data = edited_df.copy()
 
-    # チェックボックスの欠損値対策
-    alert_data["長期投資候補"] = (
-        alert_data["長期投資候補"].fillna(False).astype(bool)
-    )
-
-    alert_data["短期投資候補"] = (
-        alert_data["短期投資候補"].fillna(False).astype(bool)
-    )
-
-    # 数値型に変換
-    for col in ["株価", "買いたい価格", "売りたい価格"]:
-        alert_data[col] = pd.to_numeric(
-            alert_data[col],
-            errors="coerce"
+        # チェックボックスの欠損値対策
+        alert_data["長期投資候補"] = (
+            alert_data["長期投資候補"].fillna(False).astype(bool)
         )
+
+        alert_data["短期投資候補"] = (
+            alert_data["短期投資候補"].fillna(False).astype(bool)
+        )
+
+        # 数値型に変換
+        for col in ["株価", "買いたい価格", "売りたい価格"]:
+            alert_data[col] = pd.to_numeric(
+                alert_data[col],
+                errors="coerce"
+            )
 
     # =========================================================
     # ③ 買いシグナルのデータ
     # =========================================================
-    buy_all_df = alert_data[
-        alert_data["アラート"] == "🟢買い"
-    ].copy()
+        buy_all_df = alert_data[
+            alert_data["アラート"] == "🟢買い"
+        ].copy()
 
-    # 買いシグナルの乖離率
-    # （売りたい価格 - 株価）÷ 株価 × 100
-    buy_all_df["乖離率(%)"] = (
-        (
-            buy_all_df["売りたい価格"]
-            - buy_all_df["株価"]
-        )
-        / buy_all_df["株価"].where(buy_all_df["株価"] != 0)
-        * 100
-    ).round(1)
+        # 買いシグナルの乖離率
+        # （売りたい価格 - 株価）÷ 株価 × 100
+        buy_all_df["乖離率(%)"] = (
+            (
+                buy_all_df["売りたい価格"]
+                - buy_all_df["株価"]
+            )
+            / buy_all_df["株価"].where(buy_all_df["株価"] != 0)
+            * 100
+        ).round(1)
 
     # =========================================================
     # ④ 売りシグナルのデータ
     # =========================================================
-    sell_all_df = alert_data[
-        alert_data["アラート"] == "🔴売り"
-    ].copy()
+        sell_all_df = alert_data[
+            alert_data["アラート"] == "🔴売り"
+        ].copy()
 
-    # 売りシグナルの乖離率
-    # （株価 - 買いたい価格）÷ 買いたい価格 × 100
-    sell_all_df["乖離率(%)"] = (
-        (
-            sell_all_df["株価"]
-            - sell_all_df["買いたい価格"]
-        )
-        / sell_all_df["買いたい価格"].where(
-            sell_all_df["買いたい価格"] != 0
-        )
-        * 100
-    ).round(1)
+        # 売りシグナルの乖離率
+        # （株価 - 買いたい価格）÷ 買いたい価格 × 100
+        sell_all_df["乖離率(%)"] = (
+            (
+                sell_all_df["株価"]
+                - sell_all_df["買いたい価格"]
+            )
+            / sell_all_df["買いたい価格"].where(
+                sell_all_df["買いたい価格"] != 0
+            )
+            * 100
+        ).round(1)
 
     # =========================================================
     # ⑤ 表示用の共通列
     # =========================================================
-    display_cols = [
-        "証券コード",
-        "企業名",
-        "乖離率(%)",
-        "決算期待度(%)",
-        "投資メモ"
-    ]
+        display_cols = [
+            "証券コード",
+            "企業名",
+            "乖離率(%)",
+            "決算期待度(%)",
+            "投資メモ"
+        ]
 
     # =========================================================
     # ① 買いシグナル（短期）
     # 条件：「買い」＋「短期投資候補ON」
     # =========================================================
-    buy_short_df = buy_all_df[
-        buy_all_df["短期投資候補"] == True
-    ].copy()
+        buy_short_df = buy_all_df[
+            buy_all_df["短期投資候補"] == True
+        ].copy()
 
-    buy_short_df = buy_short_df.sort_values(
-        "乖離率(%)",
-        ascending=False,
-        na_position="last"
-    )
+        buy_short_df = buy_short_df.sort_values(
+            "乖離率(%)",
+            ascending=False,
+            na_position="last"
+        )
 
-    buy_short_df = buy_short_df[display_cols]
+        buy_short_df = buy_short_df[display_cols]
 
     # =========================================================
     # ② 売りシグナル（短期）
     # 条件：「売り」＋「短期投資候補ON」
     # =========================================================
-    sell_short_df = sell_all_df[
-        sell_all_df["短期投資候補"] == True
-    ].copy()
+        sell_short_df = sell_all_df[
+            sell_all_df["短期投資候補"] == True
+        ].copy()
 
-    sell_short_df = sell_short_df.sort_values(
-        "乖離率(%)",
-        ascending=False,
-        na_position="last"
-    )
+        sell_short_df = sell_short_df.sort_values(
+            "乖離率(%)",
+            ascending=False,
+            na_position="last"
+        )
 
-    sell_short_df = sell_short_df[display_cols]
+        sell_short_df = sell_short_df[display_cols]
 
     # =========================================================
     # ③ 買いシグナル（長期）
     # 条件：「買い」＋「長期投資候補ON」
     # =========================================================
-    buy_long_df = buy_all_df[
-        buy_all_df["長期投資候補"] == True
-    ].copy()
+        buy_long_df = buy_all_df[
+            buy_all_df["長期投資候補"] == True
+        ].copy()
 
-    buy_long_df = buy_long_df.sort_values(
-        "乖離率(%)",
-        ascending=False,
-        na_position="last"
-    )
+        buy_long_df = buy_long_df.sort_values(
+            "乖離率(%)",
+            ascending=False,
+            na_position="last"
+        )
 
-    buy_long_df = buy_long_df[display_cols]
+        buy_long_df = buy_long_df[display_cols]
 
     # =========================================================
     # ④ 参考銘柄
@@ -396,103 +396,103 @@ with st.expander("🗂️ アラート点灯リスト"):
     # =========================================================
 
     # チェックボックスが両方OFFの銘柄
-    no_candidate = (
-        (alert_data["長期投資候補"] == False)
-        & (alert_data["短期投資候補"] == False)
-    )
+        no_candidate = (
+            (alert_data["長期投資候補"] == False)
+            & (alert_data["短期投資候補"] == False)
+        )
 
     # 買いシグナルの参考銘柄
-    reference_buy_df = buy_all_df[
-        no_candidate
-        & (buy_all_df["乖離率(%)"] > threshold)
-    ].copy()
+        reference_buy_df = buy_all_df[
+            no_candidate
+            & (buy_all_df["乖離率(%)"] > threshold)
+        ].copy()
 
     # 売りシグナルの参考銘柄
-    reference_sell_df = sell_all_df[
-        no_candidate
-        & (sell_all_df["乖離率(%)"] > threshold)
-    ].copy()
+        reference_sell_df = sell_all_df[
+            no_candidate
+            & (sell_all_df["乖離率(%)"] > threshold)
+        ].copy()
 
     # 買い・売りそれぞれの乖離率降順
-    reference_buy_df = reference_buy_df.sort_values(
-        "乖離率(%)",
-        ascending=False
-    )
+        reference_buy_df = reference_buy_df.sort_values(
+            "乖離率(%)",
+            ascending=False
+        )
 
-    reference_sell_df = reference_sell_df.sort_values(
-        "乖離率(%)",
-        ascending=False
-    )
+        reference_sell_df = reference_sell_df.sort_values(
+            "乖離率(%)",
+            ascending=False
+        )
 
     # 買いを先に、その次に売りを配置
-    reference_buy_df["_signal_order"] = 0
-    reference_sell_df["_signal_order"] = 1
+        reference_buy_df["_signal_order"] = 0
+        reference_sell_df["_signal_order"] = 1
 
-    reference_df = pd.concat(
-        [reference_buy_df, reference_sell_df],
-        ignore_index=True
-    )
+        reference_df = pd.concat(
+            [reference_buy_df, reference_sell_df],
+            ignore_index=True
+        )
 
-    reference_df = reference_df.sort_values(
-        ["_signal_order", "乖離率(%)"],
-        ascending=[True, False]
-    )
+        reference_df = reference_df.sort_values(
+            ["_signal_order", "乖離率(%)"],
+            ascending=[True, False]
+        )
 
-    reference_df = reference_df[display_cols]
+        reference_df = reference_df[display_cols]
 
     # =========================================================
     # ⑥ 4つのリストを2段×2列で表示
     # =========================================================
 
     # ---------- 1段目 ----------
-    col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
 
-    with col1:
-        st.success(
-            f"🟢 買いシグナル（短期） {len(buy_short_df)}件"
-        )
+        with col1:
+            st.success(
+                f"🟢 買いシグナル（短期） {len(buy_short_df)}件"
+            )
 
-        st.dataframe(
-            buy_short_df,
-            width="stretch",
-            hide_index=True
-        )
+            st.dataframe(
+                buy_short_df,
+                width="stretch",
+                hide_index=True
+            )
 
-    with col2:
-        st.warning(
-            f"🔴 売りシグナル（短期） {len(sell_short_df)}件"
-        )
+        with col2:
+            st.warning(
+                f"🔴 売りシグナル（短期） {len(sell_short_df)}件"
+            )
 
-        st.dataframe(
-            sell_short_df,
-            width="stretch",
-            hide_index=True
-        )
+            st.dataframe(
+                sell_short_df,
+                width="stretch",
+                hide_index=True
+            )
 
     # ---------- 2段目 ----------
-    col3, col4 = st.columns(2)
+        col3, col4 = st.columns(2)
 
-    with col3:
-        st.info(
-            f"🟢 買いシグナル（長期） {len(buy_long_df)}件"
-        )
+        with col3:
+            st.info(
+                f"🟢 買いシグナル（長期） {len(buy_long_df)}件"
+            )
 
-        st.dataframe(
-            buy_long_df,
-            width="stretch",
-            hide_index=True
-        )
+            st.dataframe(
+                buy_long_df,
+                width="stretch",
+                hide_index=True
+            )
 
-    with col4:
-        st.info(
-            f"📌 参考銘柄 {len(reference_df)}件"
-        )
+        with col4:
+            st.info(
+                f"📌 参考銘柄 {len(reference_df)}件"
+            )
 
-        st.dataframe(
-            reference_df,
-            width="stretch",
-            hide_index=True
-        )
+            st.dataframe(
+                reference_df,
+                width="stretch",
+                hide_index=True
+            )
 
 
     
