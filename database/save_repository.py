@@ -72,53 +72,158 @@ def clean(v):
         return None
     return v 
 
+def calculate_assumed_eps(financial_pack, user_forecast):
+    """
+    独自予想1期目の純利益から想定EPSを計算する。
+
+    純利益：百万円
+    発行済株式数・自己株式数：株
+    """
+
+    try:
+        shares_issued = float(
+            financial_pack.get("shares_issued") or 0
+        )
+
+        treasury_shares = float(
+            financial_pack.get("treasury_shares") or 0
+        )
+
+        net_shares = shares_issued - treasury_shares
+
+        year1 = user_forecast.get("year1", {})
+        net_income = year1.get("net_income")
+
+        if net_income is None:
+            return None
+
+        net_income = float(net_income)
+
+        if not math.isfinite(net_income):
+            return None
+
+        if not math.isfinite(net_shares) or net_shares <= 0:
+            return None
+
+        eps = net_income * 1_000_000 / net_shares
+
+        if not math.isfinite(eps):
+            return None
+
+        return eps
+
+    except (TypeError, ValueError, AttributeError):
+        return None
+
 
 def save_company(prepared):
+
     meta = prepared["meta"]
 
+    # -----------------------------------------------------
+    # 既存データを取得
+    # -----------------------------------------------------
     result = (
         supabase.table("companies")
-        .select("buy_target, sell_target, investment_memo, is_favorite")
+        .select(
+            """
+            buy_target,
+            sell_target,
+            investment_memo,
+            is_favorite,
+            is_short_term,
+            evaluation,
+            assumed_per
+            """
+        )
         .eq("ticker", meta["ticker"])
         .execute()
     )
 
     if result.data:
         row = result.data[0]
+
         buy_target = row.get("buy_target")
         sell_target = row.get("sell_target")
-        investment_memo = row.get("investment_memo")
+        investment_memo = row.get("investment_memo") or ""
+
         is_favorite = row.get("is_favorite")
+        is_short_term = row.get("is_short_term")
+
+        evaluation = row.get("evaluation")
+        assumed_per = row.get("assumed_per")
+
     else:
         buy_target = None
         sell_target = None
         investment_memo = ""
+
         is_favorite = False
+        is_short_term = False
 
-    financial_pack = replace_nan(prepared["financial_pack"])
-    user_forecast_json = replace_nan(meta.get("user_forecast",{}))
-    saved_at = datetime.now(ZoneInfo("Asia/Tokyo"))
+        evaluation = None
+        assumed_per = None
 
+    # -----------------------------------------------------
+    # JSONデータの整理
+    # -----------------------------------------------------
+    financial_pack = replace_nan(
+        prepared["financial_pack"]
+    )
+
+    user_forecast_json = replace_nan(
+        meta.get("user_forecast", {})
+    )
+
+    # -----------------------------------------------------
+    # 独自予想EPSを計算
+    # -----------------------------------------------------
+    assumed_eps = calculate_assumed_eps(
+        financial_pack,
+        user_forecast_json
+    )
+
+    # -----------------------------------------------------
+    # 保存日時
+    # -----------------------------------------------------
+    saved_at = datetime.now(
+        ZoneInfo("Asia/Tokyo")
+    )
+
+    # -----------------------------------------------------
+    # companiesテーブルへ保存
+    # -----------------------------------------------------
     (
         supabase.table("companies")
         .upsert(
             {
-                "ticker" : meta["ticker"],
-                "company_name" : meta["company_name"],
-                "analyzed_period" : meta["analyzed_period"],
-                "saved_date" :  saved_at.isoformat(),
-                "current_price" : meta.get("current_price"),
-                "per" : meta.get("per"),
-                "pbr" : meta.get("pbr"),
-                "div_yield" : meta.get("div_yield"),
-                "is_favorite" : is_favorite,
-                "investment_memo" : investment_memo,
-                "financial_meta_json" : financial_pack,
-                "annual_perf_json" : prepared["annual_perf_pack"],
+                "ticker": meta["ticker"],
+                "company_name": meta["company_name"],
+                "analyzed_period": meta["analyzed_period"],
+                "saved_date": saved_at.isoformat(),
+
+                "current_price": meta.get("current_price"),
+                "per": meta.get("per"),
+                "pbr": meta.get("pbr"),
+                "div_yield": meta.get("div_yield"),
+
+                "is_favorite": is_favorite,
+                "is_short_term": is_short_term,
+
+                "investment_memo": investment_memo,
+
+                "evaluation": evaluation,
+                "assumed_per": assumed_per,
+                "assumed_eps": assumed_eps,
+
+                "financial_meta_json": financial_pack,
+                "annual_perf_json": prepared["annual_perf_pack"],
                 "kpi_json": prepared["kpi_pack"],
-                "buy_target" : buy_target,
-                "sell_target" : sell_target,
-                "user_forecast_json" : user_forecast_json
+
+                "buy_target": buy_target,
+                "sell_target": sell_target,
+
+                "user_forecast_json": user_forecast_json
             }
         )
         .execute()
