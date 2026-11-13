@@ -213,46 +213,40 @@ def save_companies_memo_pre(edited_df):
 
 def save_companies_memo(edited_df):
 
-    edited_rows = st.session_state.get("editor_v2", {}).get("edited_rows", {})
+    for _, row in edited_df.iterrows():
 
-    if not edited_rows:
-        return
+        ticker = str(row["証券コード"]).strip().upper()
 
-    for row_index, changes in edited_rows.items():
+        assumed_per = pd.to_numeric(
+            pd.Series([row["想定PER"]]),
+            errors="coerce"
+        ).iloc[0]
 
-        row = edited_df.iloc[int(row_index)]
+        evaluation = row["評価"]
+        investment_memo = row["投資メモ"]
 
-        data = {}
-
-        # 長期投資候補
-        if "長期投資候補" in changes:
-            data["is_favorite"] = bool(row["長期投資候補"])
-
-        # 短期投資候補
-        if "短期投資候補" in changes:
-            data["is_short_term"] = bool(row["短期投資候補"])
-
-        # 投資メモ
-        if "投資メモ" in changes:
-            data["investment_memo"] = clean(row["投資メモ"])
-
-        # 買いたい価格
-        if "買いたい価格" in changes:
-            data["buy_target"] = clean(row["買いたい価格"])
-
-        # 売りたい価格
-        if "売りたい価格" in changes:
-            data["sell_target"] = clean(row["売りたい価格"])
-
-        if data:
-            (
-                supabase.table("companies")
-                .update(data)
-                .eq("ticker", row["証券コード"])
-                .execute()
+        data = {
+            "is_favorite": bool(row["長期投資候補"]),
+            "is_short_term": bool(row["短期投資候補"]),
+            "evaluation": (
+                None if pd.isna(evaluation)
+                else str(evaluation)
+            ),
+            "assumed_per": (
+                None if pd.isna(assumed_per)
+                else float(assumed_per)
+            ),
+            "investment_memo": (
+                None if pd.isna(investment_memo)
+                else str(investment_memo)
             )
+        }
 
-
+        supabase.table("companies").update(
+            data
+        ).eq(
+            "ticker", ticker
+        ).execute()
 
 def save_common_note(note):
     (
