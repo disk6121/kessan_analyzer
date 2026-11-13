@@ -7,7 +7,6 @@ from decimal import Decimal, ROUND_HALF_UP
 from database.db import refresh_watchlist_prices_batch
 from database.db import get_watchlist
 from database.db import delete_company
-from database.load_repository import load_analysis_data
 from utils.get_alert_utils import get_alert_status
 from database.save_repository import save_companies_memo
 from database.save_repository import save_common_note
@@ -53,67 +52,6 @@ with col1:
         refresh_watchlist_prices_batch()
         st.success("株価を更新しました")
         st.rerun()
-
-def parse_json_dict(value):
-    """JSON文字列または辞書を辞書型に統一する"""
-    if isinstance(value, dict):
-        return value
-
-    if isinstance(value, str):
-        try:
-            result = json.loads(value)
-            return result if isinstance(result, dict) else {}
-        except (json.JSONDecodeError, TypeError):
-            return {}
-
-    return {}
-
-def safe_float(x):
-    try:
-        return float(x)
-    except:
-        return None
-
-def calculate_user_forecast_eps(meta_row):
-    """
-    独自予想EPSを計算する。
-
-    EPS = 1期目の独自予想純利益（百万円）
-          ÷（発行済株式数 - 自己株式数）× 1,000,000
-    """
-
-    if not meta_row:
-        return None
-
-    financial_meta = parse_json_dict(
-        meta_row.get("financial_meta_json")
-    )
-
-    user_forecast = parse_json_dict(
-        meta_row.get("user_forecast_json")
-    )
-
-    shares_issued = safe_float(
-        financial_meta.get("shares_issued")
-    ) or 0
-
-    treasury_shares = safe_float(
-        financial_meta.get("treasury_shares")
-    ) or 0
-
-    net_shares = shares_issued - treasury_shares
-
-    year1 = user_forecast.get("year1", {})
-    if not isinstance(year1, dict):
-        return None
-
-    net_income = safe_float(year1.get("net_income"))
-
-    if net_shares <= 0 or net_income is None:
-        return None
-
-    return net_income * 1_000_000 / net_shares
-
 
 def calculate_target_price(eps, assumed_per):
     """想定EPS × 想定PERを四捨五入して目標株価を計算"""
@@ -195,17 +133,8 @@ if not df_db.empty:
     df_db["is_favorite"] = df_db["is_favorite"].fillna(False)
     df_db["is_short_term"] = df_db["is_short_term"].fillna(False)
 
-    # EPS・目標株価の計算
-    eps_list = []
-
-    for ticker in df_db["ticker"]:
-        row_data, meta_row = load_analysis_data(ticker)
-
-        eps = calculate_user_forecast_eps(meta_row)
-        eps_list.append(eps)
-
-    df_db["assumed_eps"] = eps_list
-
+    df_db["assumed_eps"] = pd.to_numeric(df_db["assumed_eps"],errors="coerce")
+    
     df_db["assumed_per"] = pd.to_numeric(
         df_db["assumed_per"],
         errors="coerce"
