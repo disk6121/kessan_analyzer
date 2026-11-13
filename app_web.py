@@ -1,7 +1,9 @@
 import os
 import streamlit as st
 import pandas as pd
+import json
 
+from decimal import Decimal, ROUND_HALF_UP
 from database.db import refresh_watchlist_prices_batch
 from database.db import get_watchlist
 from database.db import delete_company
@@ -51,6 +53,81 @@ with col1:
         st.success("株価を更新しました")
         st.rerun()
 
+def parse_json_dict(value):
+    """JSON文字列または辞書を辞書型に統一する"""
+    if isinstance(value, dict):
+        return value
+
+    if isinstance(value, str):
+        try:
+            result = json.loads(value)
+            return result if isinstance(result, dict) else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    return {}
+
+
+def calculate_user_forecast_eps(meta_row):
+    """
+    独自予想EPSを計算する。
+
+    EPS = 1期目の独自予想純利益（百万円）
+          ÷（発行済株式数 - 自己株式数）× 1,000,000
+    """
+
+    if not meta_row:
+        return None
+
+    financial_meta = parse_json_dict(
+        meta_row.get("financial_meta_json")
+    )
+
+    user_forecast = parse_json_dict(
+        meta_row.get("user_forecast_json")
+    )
+
+    shares_issued = safe_float(
+        financial_meta.get("shares_issued")
+    ) or 0
+
+    treasury_shares = safe_float(
+        financial_meta.get("treasury_shares")
+    ) or 0
+
+    net_shares = shares_issued - treasury_shares
+
+    year1 = user_forecast.get("year1", {})
+    if not isinstance(year1, dict):
+        return None
+
+    net_income = safe_float(year1.get("net_income"))
+
+    if net_shares <= 0 or net_income is None:
+        return None
+
+    return net_income * 1_000_000 / net_shares
+
+
+def calculate_target_price(eps, assumed_per):
+    """想定EPS × 想定PERを四捨五入して目標株価を計算"""
+
+    if eps is None or assumed_per is None:
+        return None
+
+    try:
+        value = Decimal(str(eps)) * Decimal(str(assumed_per))
+
+        return int(
+            value.quantize(
+                Decimal("1"),
+                rounding=ROUND_HALF_UP
+            )
+        )
+
+    except Exception:
+        return None
+
 
 # 【1-2】ウォッチリストを表形式で表示
 df_db = get_watchlist()
@@ -70,10 +147,7 @@ df_db = df_db.sort_values(
 
 df_db["saved_date"] = df_db["saved_date"].dt.tz_convert("Asia/Tokyo")
 
-# 株価アラート
-df_db["alert_status"] = df_db.apply(get_alert_status, axis=1)
-
-# 決算予定情報（データは引き続き保持）
+# 決算予定情報
 schedule_dict = get_schedule_dict("kessan_schedule.xlsx")
 
 df_db["schedule"] = df_db["ticker"].apply(
@@ -112,36 +186,61 @@ df_db["expectation"] = df_db.apply(
 
 if not df_db.empty:
 
-    # 新設したチェックボックスの初期値
     df_db["is_favorite"] = df_db["is_favorite"].fillna(False)
     df_db["is_short_term"] = df_db["is_short_term"].fillna(False)
+
+    # EPS・目標株価の計算
+    eps_list = []
+
+    for ticker in df_db["ticker"]:
+        row_data, meta_row = load_analysis_data(ticker)
+
+        eps = calculate_user_forecast_eps(meta_row)
+        eps_list.append(eps)
+
+    df_db["assumed_eps"] = eps_list
+
+    df_db["assumed_per"] = pd.to_numeric(
+        df_db["assumed_per"],
+        errors="coerce"
+    )
+
+    df_db["target_price"] = df_db.apply(
+        lambda row: calculate_target_price(
+            row["assumed_eps"],
+            row["assumed_per"]
+        ),
+        axis=1
+    )
 
     # 表示用DataFrame
     df_display = df_db[
         [
             "ticker",
             "company_name",
+            "investment_memo",
             "saved_date",
             "current_price",
-            "investment_memo",
             "is_favorite",
             "is_short_term",
-            "buy_target",
-            "sell_target",
-            "alert_status",
+            "evaluation",
+            "assumed_per",
+            "assumed_eps",
+            "target_price",
             "expectation"
         ]
     ].rename(columns={
         "ticker": "証券コード",
         "company_name": "企業名",
+        "investment_memo": "投資メモ",
         "saved_date": "保存日",
         "current_price": "株価",
-        "investment_memo": "投資メモ",
         "is_favorite": "長期投資候補",
         "is_short_term": "短期投資候補",
-        "buy_target": "買いたい価格",
-        "sell_target": "売りたい価格",
-        "alert_status": "アラート",
+        "evaluation": "評価",
+        "assumed_per": "想定PER",
+        "assumed_eps": "想定EPS",
+        "target_price": "目標株価",
         "expectation": "決算期待度(%)"
     })
 
@@ -164,6 +263,23 @@ if not df_db.empty:
             "投資メモ": st.column_config.TextColumn(
                 width="large"
             ),
+
+            "評価": st.column_config.TextColumn(
+                help="企業の評価を自由に入力"
+            ),
+
+            "想定PER": st.column_config.NumberColumn(
+                help="想定するPERを入力",
+                format="%.1f"
+            ),
+
+            "想定EPS": st.column_config.NumberColumn(
+                format="%.1f"
+            ),
+
+            "目標株価": st.column_config.NumberColumn(
+                format="%d"
+            )
         },
 
         disabled=[
@@ -171,14 +287,14 @@ if not df_db.empty:
             "企業名",
             "保存日",
             "株価",
-            "アラート",
+            "想定EPS",
+            "目標株価",
             "決算期待度(%)"
         ],
 
         width="stretch",
         key="editor_v2"
     )
-
 
     
 
@@ -191,6 +307,12 @@ if not df_db.empty:
             st.success("リストの変更内容をSupabaseに保存しました！")
             st.rerun()
 
+        if st.button("📌 リストの変更（候補・評価・PER・メモ）を保存する", width="stretch"):
+            save_companies_memo(edited_df)
+            st.success("リストの変更内容をSupabaseに保存しました！")
+            st.rerun()
+
+    
     with col_btn2:
         # st.markdown("🗑️ **削除する企業**")
         # 証券コードを手入力
@@ -257,9 +379,6 @@ if not df_db.empty:
 # 【1-5】アラート点灯リスト
     with st.expander("🗂️ アラート点灯リスト"):
 
-    # =========================================================
-    # ① 乖離率スライダー
-    # =========================================================
         threshold = st.slider(
             "参考銘柄に表示する最低乖離率（％）",
             min_value=0,
@@ -268,190 +387,133 @@ if not df_db.empty:
             step=5
         )
 
-    # =========================================================
-    # ② 数値データの準備
-    # =========================================================
         alert_data = edited_df.copy()
 
         # チェックボックスの欠損値対策
-        alert_data["長期投資候補"] = (
-            alert_data["長期投資候補"].fillna(False).astype(bool)
-        )
-
-        alert_data["短期投資候補"] = (
-            alert_data["短期投資候補"].fillna(False).astype(bool)
-        )
+        for col in ["長期投資候補", "短期投資候補"]:
+            alert_data[col] = (
+                alert_data[col].fillna(False).astype(bool)
+            )
 
         # 数値型に変換
-        for col in ["株価", "買いたい価格", "売りたい価格"]:
+        for col in ["株価", "目標株価"]:
             alert_data[col] = pd.to_numeric(
                 alert_data[col],
                 errors="coerce"
             )
-
-    # =========================================================
-    # ③ 買いシグナルのデータ
-    # =========================================================
-        buy_all_df = alert_data[
-            alert_data["アラート"] == "🟢買い"
-        ].copy()
-
-        # 買いシグナルの乖離率
-        # （売りたい価格 - 株価）÷ 株価 × 100
-        buy_all_df["乖離率(%)"] = (
+    
+        # 目標株価と現在株価の乖離率
+        # （目標株価 - 現在株価）÷ 現在株価 × 100
+        alert_data["乖離率(%)"] = (
             (
-                buy_all_df["売りたい価格"]
-                - buy_all_df["株価"]
+                alert_data["目標株価"] - alert_data["株価"]
             )
-            / buy_all_df["株価"].where(buy_all_df["株価"] != 0)
+            / alert_data["株価"].where(alert_data["株価"] > 0)
             * 100
-        ).round(1)
+        )
 
-    # =========================================================
-    # ④ 売りシグナルのデータ
-    # =========================================================
-        sell_all_df = alert_data[
-            alert_data["アラート"] == "🔴売り"
-        ].copy()
-
-        # 売りシグナルの乖離率
-        # （株価 - 買いたい価格）÷ 買いたい価格 × 100
-        sell_all_df["乖離率(%)"] = (
-            (
-                sell_all_df["株価"]
-                - sell_all_df["買いたい価格"]
-            )
-            / sell_all_df["買いたい価格"].where(
-                sell_all_df["買いたい価格"] != 0
-            )
-            * 100
-        ).round(1)
-
-    # =========================================================
-    # ⑤ 表示用の共通列
-    # =========================================================
+        # 共通表示列
         display_cols = [
             "証券コード",
             "企業名",
+            "投資メモ",
             "乖離率(%)",
-            "決算期待度(%)",
-            "投資メモ"
+            "決算期待度(%)"
         ]
 
-    # =========================================================
-    # ① 買いシグナル（短期）
-    # 条件：「買い」＋「短期投資候補ON」
-    # =========================================================
-        buy_short_df = buy_all_df[
-            buy_all_df["短期投資候補"] == True
+        # 表示用の乖離率は小数第1位まで
+        alert_data["乖離率(%)"] = alert_data["乖離率(%)"].round(1)
+
+        # =====================================================
+        # ① 買いシグナル（短期）
+        # 株価 < 目標株価 ＋ 短期候補ON
+        # =====================================================
+        buy_short_df = alert_data[
+            (alert_data["株価"] < alert_data["目標株価"])
+            & (alert_data["短期投資候補"])
         ].copy()
 
         buy_short_df = buy_short_df.sort_values(
             "乖離率(%)",
             ascending=False,
             na_position="last"
-        )
+        )[display_cols]
 
-        buy_short_df = buy_short_df[display_cols]
-
-    # =========================================================
-    # ② 売りシグナル（短期）
-    # 条件：「売り」＋「短期投資候補ON」
-    # =========================================================
-        sell_short_df = sell_all_df[
-            sell_all_df["短期投資候補"] == True
+        # =====================================================
+        # ② 売りシグナル（短期）
+        # 株価 > 目標株価 ＋ 短期候補ON
+        # =====================================================
+        sell_short_df = alert_data[
+            (alert_data["株価"] > alert_data["目標株価"])
+            & (alert_data["短期投資候補"])
         ].copy()
 
         sell_short_df = sell_short_df.sort_values(
             "乖離率(%)",
-            ascending=False,
+            ascending=True,
             na_position="last"
-        )
+        )[display_cols]
 
-        sell_short_df = sell_short_df[display_cols]
-
-    # =========================================================
+    # =====================================================
     # ③ 買いシグナル（長期）
-    # 条件：「買い」＋「長期投資候補ON」
-    # =========================================================
-        buy_long_df = buy_all_df[
-            buy_all_df["長期投資候補"] == True
+    # 株価 < 目標株価 ＋ 長期候補ON
+    # =====================================================
+        buy_long_df = alert_data[
+            (alert_data["株価"] < alert_data["目標株価"])
+            & (alert_data["長期投資候補"])
         ].copy()
 
         buy_long_df = buy_long_df.sort_values(
             "乖離率(%)",
             ascending=False,
             na_position="last"
-        )
+        )[display_cols]
 
-        buy_long_df = buy_long_df[display_cols]
-
-    # =========================================================
-    # ④ 参考銘柄
-    # 条件：
-    # ・長期投資候補OFF
-    # ・短期投資候補OFF
-    # ・買いまたは売りシグナル
-    # ・乖離率がスライダーの設定値を上回る
-    # =========================================================
-
-    # チェックボックスが両方OFFの銘柄
+    # =====================================================
+    # ④ 参考銘柄（割安）
+    # 長期・短期候補OFF ＋ 乖離率 > 閾値
+    # =====================================================
         no_candidate = (
-            (alert_data["長期投資候補"] == False)
-            & (alert_data["短期投資候補"] == False)
+            (~alert_data["長期投資候補"])
+            & (~alert_data["短期投資候補"])
         )
 
-    # 買いシグナルの参考銘柄
-        reference_buy_df = buy_all_df[
+        reference_cheap_df = alert_data[
             no_candidate
-            & (buy_all_df["乖離率(%)"] > threshold)
+            & (alert_data["乖離率(%)"] > threshold)
         ].copy()
 
-    # 売りシグナルの参考銘柄
-        reference_sell_df = sell_all_df[
+        reference_cheap_df = reference_cheap_df.sort_values(
+            "乖離率(%)",
+            ascending=False,
+            na_position="last"
+        )[display_cols]
+
+    # =====================================================
+    # ⑤ 参考銘柄（割高）
+    # 長期・短期候補OFF ＋ 乖離率 × -1 > 閾値
+    # =====================================================
+        reference_expensive_df = alert_data[
             no_candidate
-            & (sell_all_df["乖離率(%)"] > threshold)
+            & (alert_data["乖離率(%)"] * -1 > threshold)
         ].copy()
 
-    # 買い・売りそれぞれの乖離率降順
-        reference_buy_df = reference_buy_df.sort_values(
+        reference_expensive_df = reference_expensive_df.sort_values(
             "乖離率(%)",
-            ascending=False
-        )
+            ascending=True,
+            na_position="last"
+        )[display_cols]
 
-        reference_sell_df = reference_sell_df.sort_values(
-            "乖離率(%)",
-            ascending=False
-        )
+    # =====================================================
+    # 5つのリストを表示
+    # =====================================================
 
-    # 買いを先に、その次に売りを配置
-        reference_buy_df["_signal_order"] = 0
-        reference_sell_df["_signal_order"] = 1
-
-        reference_df = pd.concat(
-            [reference_buy_df, reference_sell_df],
-            ignore_index=True
-        )
-
-        reference_df = reference_df.sort_values(
-            ["_signal_order", "乖離率(%)"],
-            ascending=[True, False]
-        )
-
-        reference_df = reference_df[display_cols]
-
-    # =========================================================
-    # ⑥ 4つのリストを2段×2列で表示
-    # =========================================================
-
-    # ---------- 1段目 ----------
         col1, col2 = st.columns(2)
 
         with col1:
             st.success(
                 f"🟢 買いシグナル（短期） {len(buy_short_df)}件"
             )
-
             st.dataframe(
                 buy_short_df,
                 width="stretch",
@@ -462,21 +524,18 @@ if not df_db.empty:
             st.warning(
                 f"🔴 売りシグナル（短期） {len(sell_short_df)}件"
             )
-
             st.dataframe(
                 sell_short_df,
                 width="stretch",
                 hide_index=True
             )
 
-    # ---------- 2段目 ----------
         col3, col4 = st.columns(2)
 
         with col3:
             st.info(
                 f"🟢 買いシグナル（長期） {len(buy_long_df)}件"
             )
-
             st.dataframe(
                 buy_long_df,
                 width="stretch",
@@ -485,14 +544,22 @@ if not df_db.empty:
 
         with col4:
             st.info(
-                f"📌 参考銘柄 {len(reference_df)}件"
+                f"📈 参考銘柄（割安） {len(reference_cheap_df)}件"
             )
-
             st.dataframe(
-                reference_df,
+                reference_cheap_df,
                 width="stretch",
                 hide_index=True
             )
+
+        st.info(
+            f"📉 参考銘柄（割高） {len(reference_expensive_df)}件"
+        )
+        st.dataframe(
+            reference_expensive_df,
+            width="stretch",
+            hide_index=True
+        )
 
 
     
@@ -527,7 +594,104 @@ if not df_db.empty:
             if not recent_df.empty:
                 st.info("🟢 過去7日以内に発表")
                 st.dataframe(recent_df,hide_index=True)
-            
+
+
+# 【1-6】決算発表スケジュール
+    with st.expander("📅 決算発表スケジュール"):
+
+        today_df = df_db[df_db["days_diff"] == 0]
+
+        today_df = today_df[
+            [
+                "ticker",
+                "company_name",
+                "is_favorite",
+                "is_short_term",
+                "expectation"
+            ]
+        ].rename(columns={
+            "ticker": "証券コード",
+            "company_name": "企業名",
+            "is_favorite": "長期投資候補",
+            "is_short_term": "短期投資候補",
+            "expectation": "決算期待度(%)"
+        })
+
+        upcoming_df = df_db[
+            (df_db["days_diff"] >= 1)
+            & (df_db["days_diff"] <= 7)
+        ].sort_values("days_diff")
+
+        upcoming_df = upcoming_df[
+            [
+                "ticker",
+                "company_name",
+                "is_favorite",
+                "is_short_term",
+                "announcement_display",
+                "expectation"
+            ]
+        ].rename(columns={
+            "ticker": "証券コード",
+            "company_name": "企業名",
+            "is_favorite": "長期投資候補",
+            "is_short_term": "短期投資候補",
+            "announcement_display": "決算予定",
+            "expectation": "決算期待度(%)"
+        })
+
+        recent_df = df_db[
+            (df_db["days_diff"] >= -7)
+            & (df_db["days_diff"] <= -1)
+        ].sort_values("days_diff", ascending=False)
+
+        recent_df = recent_df[
+            [
+                "ticker",
+                "company_name",
+                "is_favorite",
+                "is_short_term",
+                "announcement_display",
+                "expectation"
+            ]
+        ].rename(columns={
+            "ticker": "証券コード",
+            "company_name": "企業名",
+            "is_favorite": "長期投資候補",
+            "is_short_term": "短期投資候補",
+            "announcement_display": "決算予定",
+            "expectation": "決算期待度(%)"
+        })
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            if not today_df.empty:
+                st.success("🔴 今日発表")
+                st.dataframe(
+                    today_df,
+                    hide_index=True,
+                    width="stretch"
+                )
+
+        with col2:
+            if not upcoming_df.empty:
+                st.warning("🟠 7日以内に発表予定")
+                st.dataframe(
+                    upcoming_df,
+                    hide_index=True,
+                    width="stretch"
+                )
+
+        with col3:
+            if not recent_df.empty:
+                st.info("🟢 過去7日以内に発表")
+                st.dataframe(
+                    recent_df,
+                    hide_index=True,
+                    width="stretch"
+                )
+    
     
 # 【1-7】過去の分析結果詳細の呼び出し
     st.write("#### 📂 過去の分析結果を呼び出す")
