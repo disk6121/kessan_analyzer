@@ -237,11 +237,6 @@ if not df_db.empty:
     col_btn1, col_btn2 = st.columns([1, 1])
 
     with col_btn1:
-        if st.button("📌 リストの変更（チェック・メモ）を保存する", width="stretch"):
-            save_companies_memo(edited_df)
-            st.success("リストの変更内容をSupabaseに保存しました！")
-            st.rerun()
-
         if st.button("📌 リストの変更（候補・評価・PER・メモ）を保存する", width="stretch"):
             save_companies_memo(edited_df)
             st.success("リストの変更内容をSupabaseに保存しました！")
@@ -495,40 +490,6 @@ if not df_db.empty:
             width="stretch",
             hide_index=True
         )
-
-
-    
-# 【1-6】決算発表スケジュール
-    with st.expander("📅 決算発表スケジュール"):
-        today_df = df_db[df_db["days_diff"] == 0]
-        today_df = today_df[["ticker", "company_name", "is_favorite", "expectation"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "expectation": "決算期待度(%)"
-            })
-        
-        upcoming_df = df_db[(df_db["days_diff"] >= 1)&(df_db["days_diff"] <= 7)].sort_values("days_diff")
-        upcoming_df = upcoming_df[["ticker", "company_name", "is_favorite", "announcement_display", "expectation"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "expectation": "決算期待度(%)"
-            })
-        
-        recent_df = df_db[(df_db["days_diff"] >= -7)&(df_db["days_diff"] <= -1)].sort_values("days_diff", ascending=False)
-        recent_df = recent_df[["ticker", "company_name", "is_favorite", "announcement_display", "expectation"]].rename(columns={
-            "ticker": "証券コード", "company_name": "企業名", "is_favorite": "⭐お気に入り", "announcement_display": "決算予定",  "expectation": "決算期待度(%)"
-            })
-
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            if not today_df.empty:
-                st.success("🔴 今日発表")
-                st.dataframe(today_df,hide_index=True)
-        with col2:
-            if not upcoming_df.empty:
-                st.warning("🟠 7日以内に発表予定")
-                st.dataframe(upcoming_df,hide_index=True,width="stretch")
-        with col3:
-            if not recent_df.empty:
-                st.info("🟢 過去7日以内に発表")
-                st.dataframe(recent_df,hide_index=True)
 
 
 # 【1-6】決算発表スケジュール
