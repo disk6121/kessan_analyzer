@@ -7,6 +7,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from database.db import refresh_watchlist_prices_batch
 from database.db import get_watchlist
 from database.db import delete_company
+from database.load_repository import load_analysis_data
 from utils.get_alert_utils import get_alert_status
 from database.save_repository import save_companies_memo
 from database.save_repository import save_common_note
