@@ -68,6 +68,11 @@ def parse_json_dict(value):
 
     return {}
 
+def safe_float(x):
+    try:
+        return float(x)
+    except:
+        return None
 
 def calculate_user_forecast_eps(meta_row):
     """
