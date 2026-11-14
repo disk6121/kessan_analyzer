@@ -237,11 +237,24 @@ if not df_db.empty:
     col_btn1, col_btn2 = st.columns([1, 1])
 
     with col_btn1:
-        if st.button("📌 リストの変更（候補・評価・PER・メモ）を保存する", width="stretch"):
-            save_companies_memo(edited_df)
-            st.success("リストの変更内容をSupabaseに保存しました！")
-            st.rerun()
+        if st.button(
+            "📌 リストの変更（候補・評価・PER・メモ）を保存する",
+            width="stretch"
+        ):
 
+            updated_count = save_companies_memo(
+                edited_df,
+                df_display
+            )
+
+            if updated_count > 0:
+                st.success(
+                    f"{updated_count}銘柄の変更内容をSupabaseに保存しました！"
+                )
+            else:
+                st.info("変更された項目はありませんでした。")
+
+            st.rerun()
     
     with col_btn2:
         # st.markdown("🗑️ **削除する企業**")
