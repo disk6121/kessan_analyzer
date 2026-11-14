@@ -316,42 +316,79 @@ def save_companies_memo_pre(edited_df):
             .execute()
         )
 
-def save_companies_memo(edited_df):
+
+
+def save_companies_memo(edited_df, original_df):
+
+    # 画面上の列名とSupabaseのカラム名の対応
+    column_map = {
+        "長期投資候補": ("is_favorite", "bool"),
+        "短期投資候補": ("is_short_term", "bool"),
+        "評価": ("evaluation", "text"),
+        "想定PER": ("assumed_per", "number"),
+        "投資メモ": ("investment_memo", "text"),
+    }
+
+    def normalize_value(value, value_type):
+
+        if pd.isna(value):
+            return None
+
+        if value_type == "bool":
+            return bool(value)
+
+        elif value_type == "number":
+            return float(value)
+
+        else:
+            return str(value)
+
+    # 変更前のデータを証券コードで検索できるようにする
+    original_dict = original_df.set_index("証券コード").to_dict("index")
+
+    updated_count = 0
 
     for _, row in edited_df.iterrows():
 
         ticker = str(row["証券コード"]).strip().upper()
 
-        assumed_per = pd.to_numeric(
-            pd.Series([row["想定PER"]]),
-            errors="coerce"
-        ).iloc[0]
+        if ticker not in original_dict:
+            continue
 
-        evaluation = row["評価"]
-        investment_memo = row["投資メモ"]
+        original_row = original_dict[ticker]
 
-        data = {
-            "is_favorite": bool(row["長期投資候補"]),
-            "is_short_term": bool(row["短期投資候補"]),
-            "evaluation": (
-                None if pd.isna(evaluation)
-                else str(evaluation)
-            ),
-            "assumed_per": (
-                None if pd.isna(assumed_per)
-                else float(assumed_per)
-            ),
-            "investment_memo": (
-                None if pd.isna(investment_memo)
-                else str(investment_memo)
+        # 変更された項目だけを格納する
+        update_data = {}
+
+        for display_col, (db_col, value_type) in column_map.items():
+
+            new_value = normalize_value(
+                row[display_col],
+                value_type
             )
-        }
 
-        supabase.table("companies").update(
-            data
-        ).eq(
-            "ticker", ticker
-        ).execute()
+            old_value = normalize_value(
+                original_row[display_col],
+                value_type
+            )
+
+            # 変更があった項目だけ追加
+            if new_value != old_value:
+                update_data[db_col] = new_value
+
+        # 変更があった銘柄だけSupabaseを更新
+        if update_data:
+
+            supabase.table("companies").update(
+                update_data
+            ).eq(
+                "ticker", ticker
+            ).execute()
+
+            updated_count += 1
+
+    return updated_count
+
 
 def save_common_note(note):
     (
