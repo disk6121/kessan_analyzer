@@ -436,6 +436,12 @@ def render_user_forecast(stock_meta, combined_data=None):
 
     forecast_df = pd.DataFrame(rows)
 
+    # 自動計算結果があれば反映
+    auto_result_key = f"auto_forecast_result_{ticker}"
+
+    if auto_result_key in st.session_state:
+        forecast_df = st.session_state[auto_result_key].copy()
+
     # --------------------------------
     # 1期目自動計算ボタン
     # --------------------------------
@@ -486,7 +492,7 @@ def render_user_forecast(stock_meta, combined_data=None):
             ] = auto_result["net_income"]
 
             # data_editorに自動計算結果を反映
-            st.session_state[editor_key] = forecast_df.copy()
+            st.session_state[f"auto_forecast_result_{ticker}"] = forecast_df.copy()
 
             st.success("1期目の自動計算が完了しました。")
 
