@@ -225,7 +225,7 @@ def calculate_auto_forecast(
     """
 
     annual_perf = parse_json_dict(
-        stock_meta.get("annual_perf_json")
+        combined_data.get("annual_perf_json")
     )
 
     financial_meta = parse_json_dict(
