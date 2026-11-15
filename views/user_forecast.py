@@ -162,7 +162,7 @@ def get_latest_forecast(annual_perf):
     return forecasts[0][1]
 
 
-def calculate_dilution_ratio(financial_meta):
+def calculate_dilution_ratio(stock_meta):
     """
     希薄化率 = 希薄化後EPS / 基本EPS
 
@@ -170,11 +170,11 @@ def calculate_dilution_ratio(financial_meta):
     """
 
     eps_basic = to_number(
-        financial_meta.get("eps_basic")
+        stock_meta.get("eps_basic")
     )
 
     eps_diluted = to_number(
-        financial_meta.get("eps_diluted")
+        stock_meta.get("eps_diluted")
     )
 
     if (
@@ -188,7 +188,7 @@ def calculate_dilution_ratio(financial_meta):
     return eps_diluted / eps_basic
 
 
-def calculate_parent_ratio(financial_meta):
+def calculate_parent_ratio(stock_meta):
     """
     支配株主持分率 =
     (純資産 - 非支配株主持分) / 純資産
@@ -197,11 +197,11 @@ def calculate_parent_ratio(financial_meta):
     """
 
     net_assets = to_number(
-        financial_meta.get("net_assets")
+        stock_meta.get("net_assets")
     )
 
     non_controlling = to_number(
-        financial_meta.get("non_controlling_interests")
+        stock_meta.get("non_controlling_interests")
     )
 
     if net_assets is None or net_assets <= 0:
@@ -228,10 +228,6 @@ def calculate_auto_forecast(
         stock_meta.get("annual_performance")
     )
 
-    financial_meta = parse_json_dict(
-        stock_meta.get("financial_meta_json")
-    )
-
     forecast = get_latest_forecast(annual_perf)
 
     if not forecast:
@@ -253,11 +249,11 @@ def calculate_auto_forecast(
 
     # 希薄化率・支配株主持分率
     dilution_ratio = calculate_dilution_ratio(
-        financial_meta
+        stock_meta
     )
 
     parent_ratio = calculate_parent_ratio(
-        financial_meta
+        stock_meta
     )
 
     # 今期予想
