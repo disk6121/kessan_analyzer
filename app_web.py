@@ -109,80 +109,51 @@ def calculate_target_price(eps, assumed_per):
 # スマホ用カード表示
 # ---------------------------------------------------------
 def render_mobile_cards(df, show_memo=False, show_date=False):
-
     if df.empty:
         st.caption("該当する銘柄はありません")
         return
 
     for _, row in df.iterrows():
-
         with st.container(border=True):
-
             # 企業名・証券コード
             st.markdown(
-                f"**{row['企業名']}**"
-            )
-
-            st.caption(
-                f"証券コード：{row['証券コード']}"
+                f"**{row['企業名']}**　`{row['証券コード']}`"
             )
 
             # 決算予定日
-            if show_date:
-                st.write(
-                    f"📅 決算予定：{row['決算予定']}"
-                )
+            if show_date and "決算予定" in df.columns:
+                st.caption(f"📅 決算予定：{row['決算予定']}")
 
-            # アラート用情報
+            # 乖離率・決算期待度
             if "乖離率(%)" in df.columns:
-
                 deviation = row["乖離率(%)"]
-
-                if pd.notna(deviation):
-                    st.markdown(
-                        f"**乖離率：{deviation:+.1f}%**"
-                    )
-
                 expectation = row["決算期待度(%)"]
 
+                metric_parts = []
+
+                if pd.notna(deviation):
+                    metric_parts.append(f"乖離率 **{deviation:+.1f}%**")
+
                 if pd.notna(expectation):
-                    st.caption(
-                        f"決算期待度：{expectation}%"
-                    )
+                    metric_parts.append(f"決算期待度 {expectation}%")
 
-            # 決算スケジュール用情報
+                if metric_parts:
+                    st.markdown("　｜　".join(metric_parts))
+
+            # 長期・短期投資候補
             if "長期投資候補" in df.columns:
-
-                long_term = (
-                    "ON" if row["長期投資候補"] else "OFF"
-                )
-
-                short_term = (
-                    "ON" if row["短期投資候補"] else "OFF"
-                )
-
+                long_term = "ON" if row["長期投資候補"] else "OFF"
+                short_term = "ON" if row["短期投資候補"] else "OFF"
                 st.caption(
-                    f"長期候補：{long_term}　"
-                    f"短期候補：{short_term}"
+                    f"長期候補：{long_term}　｜　短期候補：{short_term}"
                 )
 
-                if "決算期待度(%)" in df.columns:
-                    expectation = row["決算期待度(%)"]
-
-                    if pd.notna(expectation):
-                        st.caption(
-                            f"決算期待度：{expectation}%"
-                        )
-
-            # 投資メモ
-            if show_memo:
-
+            # 投資メモは折りたたんで表示
+            if show_memo and "投資メモ" in df.columns:
                 memo = row["投資メモ"]
-
                 if pd.notna(memo) and str(memo).strip():
-                    st.caption(
-                        f"📝 {memo}"
-                    )
+                    with st.expander("📝 投資メモ"):
+                        st.write(str(memo))
 
 
 # 【1-2】ウォッチリストを表形式で表示
@@ -620,55 +591,28 @@ if not df_db.empty:
     # =====================================================
     # スマホ用表示
     # =====================================================
+
         with st.container(key="mobile_alert_view"):
 
-            st.markdown(
-                f"#### 🟢 買いシグナル（短期） {len(buy_short_df)}件"
-            )
-            render_mobile_cards(
-                buy_short_df,
-                show_memo=True
-            )
+            alert_options = {
+                f"🟢 買い（短期）　{len(buy_short_df)}件": buy_short_df,
+                f"🔴 売り（短期）　{len(sell_short_df)}件": sell_short_df,
+                f"🟢 買い（長期）　{len(buy_long_df)}件": buy_long_df,
+                f"📈 割安（参考）　{len(reference_cheap_df)}件": reference_cheap_df,
+                f"📉 割高（参考）　{len(reference_expensive_df)}件": reference_expensive_df,
+            }
 
-            st.divider()
+            selected_alert = st.selectbox(
+                "表示するアラート",
+                options=list(alert_options.keys()),
+                key="mobile_alert_category",
+            )
 
-            st.markdown(
-                f"#### 🔴 売りシグナル（短期） {len(sell_short_df)}件"
-            )
-            render_mobile_cards(
-                sell_short_df,
-                show_memo=True
-            )
+            render_mobile_cards(
+                alert_options[selected_alert],
+                show_memo=True,
+            )
 
-            st.divider()
-
-            st.markdown(
-                f"#### 🟢 買いシグナル（長期） {len(buy_long_df)}件"
-            )
-            render_mobile_cards(
-                buy_long_df,
-                show_memo=True
-            )
-
-            st.divider()
-
-            st.markdown(
-                f"#### 📈 参考銘柄（割安） {len(reference_cheap_df)}件"
-            )
-            render_mobile_cards(
-                reference_cheap_df,
-                show_memo=True
-            )
-
-            st.divider()
-
-            st.markdown(
-                f"#### 📉 参考銘柄（割高） {len(reference_expensive_df)}件"
-            )
-            render_mobile_cards(
-                reference_expensive_df,
-                show_memo=True
-            )
 
 
 
@@ -779,30 +723,24 @@ if not df_db.empty:
     # =====================================================
         with st.container(key="mobile_schedule_view"):
 
-            st.markdown(
-                f"#### 🔴 今日発表 {len(today_df)}件"
-            )
-            render_mobile_cards(today_df)
+            schedule_options = {
+                f"📌 今日の決算　{len(today_df)}件": today_df,
+                f"📅 今後7日　{len(upcoming_df)}件": upcoming_df,
+                f"🕒 直近7日　{len(recent_df)}件": recent_df,
+            }
 
-            st.divider()
+            selected_schedule = st.selectbox(
+                "表示する決算スケジュール",
+                options=list(schedule_options.keys()),
+                key="mobile_schedule_category",
+            )
 
-            st.markdown(
-                f"#### 🟠 7日以内に発表予定 {len(upcoming_df)}件"
-            )
-            render_mobile_cards(
-                upcoming_df,
-                show_date=True
-            )
+            render_mobile_cards(
+                schedule_options[selected_schedule],
+                show_memo=False,
+                show_date=True,
+            )
 
-            st.divider()
-
-            st.markdown(
-                f"#### 🟢 過去7日以内に発表 {len(recent_df)}件"
-            )
-            render_mobile_cards(
-                recent_df,
-                show_date=True
-            )
     
 # 【1-7】過去の分析結果詳細の呼び出し
     st.write("#### 📂 過去の分析結果を呼び出す")
