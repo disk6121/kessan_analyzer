@@ -593,8 +593,7 @@ if not df_db.empty:
     # =====================================================
 
         with st.container(key="mobile_alert_view"):
-
-            alert_options = {
+            alert_options = {
                 f"🟢 買い（短期）　{len(buy_short_df)}件": buy_short_df,
                 f"🔴 売り（短期）　{len(sell_short_df)}件": sell_short_df,
                 f"🟢 買い（長期）　{len(buy_long_df)}件": buy_long_df,
