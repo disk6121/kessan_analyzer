@@ -591,62 +591,27 @@ if not df_db.empty:
     # =====================================================
     # スマホ用表示
     # =====================================================
-        with st.container(key="mobile_schedule_view"):
-
-            # 1. 決算発表時期を選択
-            schedule_options = {
-                f"今日の決算 {len(today_df)}件": today_df,
-                f"今後7日 {len(upcoming_df)}件": upcoming_df,
-                f"直近7日 {len(recent_df)}件": recent_df,
+        with st.container(key="mobile_alert_view"):
+            alert_options = {
+                f"買い（短期） {len(buy_short_df)}件": buy_short_df,
+                f"売り（短期） {len(sell_short_df)}件": sell_short_df,
+                f"買い（長期） {len(buy_long_df)}件": buy_long_df,
+                f"割安（参考） {len(reference_cheap_df)}件": reference_cheap_df,
+                f"割高（参考） {len(reference_expensive_df)}件": reference_expensive_df,
             }
 
-            selected_schedule = st.selectbox(
-                "表示する決算スケジュール",
-                options=list(schedule_options.keys()),
-                key="mobile_schedule_category",
+            selected_alert = st.selectbox(
+                "表示するアラート",
+                options=list(alert_options.keys()),
+                key="mobile_alert_category",
             )
 
-            # 選択された期間のデータを取得
-            selected_df = schedule_options[selected_schedule].copy()
-
-            # 2. 投資候補の状態で絞り込み
-            candidate_filter = st.selectbox(
-                "投資候補で絞り込み",
-                options=[
-                    "すべて表示",
-                    "長期投資候補 ON のみ",
-                    "短期投資候補 ON のみ",
-                    "長期・短期ともに OFF のみ",
-                ],
-                key="mobile_schedule_candidate_filter",
-            )
-
-            if candidate_filter == "長期投資候補 ON のみ":
-                selected_df = selected_df[
-                    selected_df["長期投資候補"] == True
-                ]
-
-            elif candidate_filter == "短期投資候補 ON のみ":
-                selected_df = selected_df[
-                    selected_df["短期投資候補"] == True
-                ]
-
-            elif candidate_filter == "長期・短期ともに OFF のみ":
-                selected_df = selected_df[
-                    (selected_df["長期投資候補"] == False)
-                    & (selected_df["短期投資候補"] == False)
-                ]
-
-            # 3. 絞り込み後の件数を表示
-            st.caption(f"該当銘柄：{len(selected_df)}件")
-
-            # 4. 銘柄カードを表示
             render_mobile_cards(
-                selected_df,
-                show_memo=False,
-                show_date=True,
+                alert_options[selected_alert],
+                show_memo=True,
             )
 
+    
 
 # 【1-6】決算発表スケジュール
     with st.expander("📅 決算発表スケジュール"):
@@ -755,10 +720,11 @@ if not df_db.empty:
     # =====================================================
         with st.container(key="mobile_schedule_view"):
 
+            # 1. 決算発表時期を選択
             schedule_options = {
-                f"📌 今日の決算　{len(today_df)}件": today_df,
-                f"📅 今後7日　{len(upcoming_df)}件": upcoming_df,
-                f"🕒 直近7日　{len(recent_df)}件": recent_df,
+                f"今日の決算 {len(today_df)}件": today_df,
+                f"今後7日 {len(upcoming_df)}件": upcoming_df,
+                f"直近7日 {len(recent_df)}件": recent_df,
             }
 
             selected_schedule = st.selectbox(
@@ -767,8 +733,43 @@ if not df_db.empty:
                 key="mobile_schedule_category",
             )
 
+            # 選択された期間のデータを取得
+            selected_df = schedule_options[selected_schedule].copy()
+
+            # 2. 投資候補の状態で絞り込み
+            candidate_filter = st.selectbox(
+                "投資候補で絞り込み",
+                options=[
+                    "すべて表示",
+                    "長期投資候補 ON のみ",
+                    "短期投資候補 ON のみ",
+                    "長期・短期ともに OFF のみ",
+                ],
+                key="mobile_schedule_candidate_filter",
+            )
+
+            if candidate_filter == "長期投資候補 ON のみ":
+                selected_df = selected_df[
+                    selected_df["長期投資候補"] == True
+                ]
+
+            elif candidate_filter == "短期投資候補 ON のみ":
+                selected_df = selected_df[
+                    selected_df["短期投資候補"] == True
+                ]
+
+            elif candidate_filter == "長期・短期ともに OFF のみ":
+                selected_df = selected_df[
+                    (selected_df["長期投資候補"] == False)
+                    & (selected_df["短期投資候補"] == False)
+                ]
+
+            # 3. 絞り込み後の件数を表示
+            st.caption(f"該当銘柄：{len(selected_df)}件")
+
+            # 4. 銘柄カードを表示
             render_mobile_cards(
-                schedule_options[selected_schedule],
+                selected_df,
                 show_memo=False,
                 show_date=True,
             )
