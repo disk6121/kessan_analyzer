@@ -594,23 +594,23 @@ if not df_db.empty:
 
         with st.container(key="mobile_alert_view"):
             alert_options = {
-                f"🟢 買い（短期）　{len(buy_short_df)}件": buy_short_df,
-                f"🔴 売り（短期）　{len(sell_short_df)}件": sell_short_df,
-                f"🟢 買い（長期）　{len(buy_long_df)}件": buy_long_df,
-                f"📈 割安（参考）　{len(reference_cheap_df)}件": reference_cheap_df,
-                f"📉 割高（参考）　{len(reference_expensive_df)}件": reference_expensive_df,
-            }
+                f"🟢 買い（短期）　{len(buy_short_df)}件": buy_short_df,
+                f"🔴 売り（短期）　{len(sell_short_df)}件": sell_short_df,
+                f"🟢 買い（長期）　{len(buy_long_df)}件": buy_long_df,
+                f"📈 割安（参考）　{len(reference_cheap_df)}件": reference_cheap_df,
+                f"📉 割高（参考）　{len(reference_expensive_df)}件": reference_expensive_df,
+            }
 
-            selected_alert = st.selectbox(
-                "表示するアラート",
-                options=list(alert_options.keys()),
-                key="mobile_alert_category",
-            )
+            selected_alert = st.selectbox(
+                "表示するアラート",
+                options=list(alert_options.keys()),
+                key="mobile_alert_category",
+            )
 
-            render_mobile_cards(
-                alert_options[selected_alert],
-                show_memo=True,
-            )
+            render_mobile_cards(
+                alert_options[selected_alert],
+                show_memo=True,
+            )
 
 
 
@@ -722,23 +722,23 @@ if not df_db.empty:
     # =====================================================
         with st.container(key="mobile_schedule_view"):
 
-            schedule_options = {
-                f"📌 今日の決算　{len(today_df)}件": today_df,
-                f"📅 今後7日　{len(upcoming_df)}件": upcoming_df,
-                f"🕒 直近7日　{len(recent_df)}件": recent_df,
-            }
+            schedule_options = {
+                f"📌 今日の決算　{len(today_df)}件": today_df,
+                f"📅 今後7日　{len(upcoming_df)}件": upcoming_df,
+                f"🕒 直近7日　{len(recent_df)}件": recent_df,
+            }
 
-            selected_schedule = st.selectbox(
-                "表示する決算スケジュール",
-                options=list(schedule_options.keys()),
-                key="mobile_schedule_category",
-            )
+            selected_schedule = st.selectbox(
+                "表示する決算スケジュール",
+                options=list(schedule_options.keys()),
+                key="mobile_schedule_category",
+            )
 
-            render_mobile_cards(
-                schedule_options[selected_schedule],
-                show_memo=False,
-                show_date=True,
-            )
+            render_mobile_cards(
+                schedule_options[selected_schedule],
+                show_memo=False,
+                show_date=True,
+            )
 
     
 # 【1-7】過去の分析結果詳細の呼び出し
