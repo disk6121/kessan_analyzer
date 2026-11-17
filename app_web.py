@@ -33,6 +33,39 @@ from views.analysis_view import render_analysis_visuals
 # タイトル
 # ---------------------------------------------------------
 st.set_page_config(page_title="決算分析アプリ", layout="wide")
+
+# ---------------------------------------------------------
+# スマホ・PC表示切り替え
+# ---------------------------------------------------------
+st.markdown("""
+<style>
+
+/* 通常はスマホ用表示を隠す */
+.st-key-mobile_alert_view,
+.st-key-mobile_schedule_view {
+    display: none;
+}
+
+/* スマホ表示 */
+@media (max-width: 768px) {
+
+    /* PC用表示を隠す */
+    .st-key-desktop_alert_view,
+    .st-key-desktop_schedule_view {
+        display: none !important;
+    }
+
+    /* スマホ用表示を出す */
+    .st-key-mobile_alert_view,
+    .st-key-mobile_schedule_view {
+        display: block !important;
+    }
+
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 st.title("📊 決算短信分析アプリ")
 st.write("決算短信をアップロードすると自動で分析を行います。")
 
@@ -71,6 +104,85 @@ def calculate_target_price(eps, assumed_per):
 
     except Exception:
         return None
+
+# ---------------------------------------------------------
+# スマホ用カード表示
+# ---------------------------------------------------------
+def render_mobile_cards(df, show_memo=False, show_date=False):
+
+    if df.empty:
+        st.caption("該当する銘柄はありません")
+        return
+
+    for _, row in df.iterrows():
+
+        with st.container(border=True):
+
+            # 企業名・証券コード
+            st.markdown(
+                f"**{row['企業名']}**"
+            )
+
+            st.caption(
+                f"証券コード：{row['証券コード']}"
+            )
+
+            # 決算予定日
+            if show_date:
+                st.write(
+                    f"📅 決算予定：{row['決算予定']}"
+                )
+
+            # アラート用情報
+            if "乖離率(%)" in df.columns:
+
+                deviation = row["乖離率(%)"]
+
+                if pd.notna(deviation):
+                    st.markdown(
+                        f"**乖離率：{deviation:+.1f}%**"
+                    )
+
+                expectation = row["決算期待度(%)"]
+
+                if pd.notna(expectation):
+                    st.caption(
+                        f"決算期待度：{expectation}%"
+                    )
+
+            # 決算スケジュール用情報
+            if "長期投資候補" in df.columns:
+
+                long_term = (
+                    "ON" if row["長期投資候補"] else "OFF"
+                )
+
+                short_term = (
+                    "ON" if row["短期投資候補"] else "OFF"
+                )
+
+                st.caption(
+                    f"長期候補：{long_term}　"
+                    f"短期候補：{short_term}"
+                )
+
+                if "決算期待度(%)" in df.columns:
+                    expectation = row["決算期待度(%)"]
+
+                    if pd.notna(expectation):
+                        st.caption(
+                            f"決算期待度：{expectation}%"
+                        )
+
+            # 投資メモ
+            if show_memo:
+
+                memo = row["投資メモ"]
+
+                if pd.notna(memo) and str(memo).strip():
+                    st.caption(
+                        f"📝 {memo}"
+                    )
 
 
 # 【1-2】ウォッチリストを表形式で表示
@@ -448,61 +560,116 @@ if not df_db.empty:
         )[display_cols]
 
     # =====================================================
-    # 5つのリストを表示
+    # PC用表示
     # =====================================================
+        with st.container(key="desktop_alert_view"):
 
-        col1, col2 = st.columns(2)
+            col1, col2 = st.columns(2)
 
-        with col1:
-            st.success(
-                f"🟢 買いシグナル（短期） {len(buy_short_df)}件"
+            with col1:
+                st.success(
+                    f"🟢 買いシグナル（短期） {len(buy_short_df)}件"
+                )
+                st.dataframe(
+                    buy_short_df,
+                    width="stretch",
+                    hide_index=True
+                )
+
+            with col2:
+                st.warning(
+                    f"🔴 売りシグナル（短期） {len(sell_short_df)}件"
+                )
+                st.dataframe(
+                    sell_short_df,
+                    width="stretch",
+                    hide_index=True
+                )
+
+            col3, col4 = st.columns(2)
+
+            with col3:
+                st.info(
+                    f"🟢 買いシグナル（長期） {len(buy_long_df)}件"
+                )
+                st.dataframe(
+                    buy_long_df,
+                    width="stretch",
+                    hide_index=True
+                )
+
+            with col4:
+                st.info(
+                    f"📈 参考銘柄（割安） {len(reference_cheap_df)}件"
+                )
+                st.dataframe(
+                    reference_cheap_df,
+                    width="stretch",
+                    hide_index=True
+                )
+
+            st.info(
+                f"📉 参考銘柄（割高） {len(reference_expensive_df)}件"
             )
             st.dataframe(
+                reference_expensive_df,
+                width="stretch",
+                hide_index=True
+            )
+
+    # =====================================================
+    # スマホ用表示
+    # =====================================================
+        with st.container(key="mobile_alert_view"):
+
+            st.markdown(
+                f"#### 🟢 買いシグナル（短期） {len(buy_short_df)}件"
+            )
+            render_mobile_cards(
                 buy_short_df,
-                width="stretch",
-                hide_index=True
+                show_memo=True
             )
 
-        with col2:
-            st.warning(
-                f"🔴 売りシグナル（短期） {len(sell_short_df)}件"
+            st.divider()
+
+            st.markdown(
+                f"#### 🔴 売りシグナル（短期） {len(sell_short_df)}件"
             )
-            st.dataframe(
+            render_mobile_cards(
                 sell_short_df,
-                width="stretch",
-                hide_index=True
+                show_memo=True
             )
 
-        col3, col4 = st.columns(2)
+            st.divider()
 
-        with col3:
-            st.info(
-                f"🟢 買いシグナル（長期） {len(buy_long_df)}件"
+            st.markdown(
+                f"#### 🟢 買いシグナル（長期） {len(buy_long_df)}件"
             )
-            st.dataframe(
+            render_mobile_cards(
                 buy_long_df,
-                width="stretch",
-                hide_index=True
+                show_memo=True
             )
 
-        with col4:
-            st.info(
-                f"📈 参考銘柄（割安） {len(reference_cheap_df)}件"
+            st.divider()
+
+            st.markdown(
+                f"#### 📈 参考銘柄（割安） {len(reference_cheap_df)}件"
             )
-            st.dataframe(
+            render_mobile_cards(
                 reference_cheap_df,
-                width="stretch",
-                hide_index=True
+                show_memo=True
             )
 
-        st.info(
-            f"📉 参考銘柄（割高） {len(reference_expensive_df)}件"
-        )
-        st.dataframe(
-            reference_expensive_df,
-            width="stretch",
-            hide_index=True
-        )
+            st.divider()
+
+            st.markdown(
+                f"#### 📉 参考銘柄（割高） {len(reference_expensive_df)}件"
+            )
+            render_mobile_cards(
+                reference_expensive_df,
+                show_memo=True
+            )
+
 
 
 # 【1-6】決算発表スケジュール
@@ -572,35 +739,70 @@ if not df_db.empty:
             "expectation": "決算期待度(%)"
         })
 
-        col1, col2, col3 = st.columns(3)
+    # =====================================================
+    # PC用表示
+    # =====================================================
+        with st.container(key="desktop_schedule_view"):
 
-        with col1:
-            if not today_df.empty:
-                st.success("🔴 今日発表")
-                st.dataframe(
-                    today_df,
-                    hide_index=True,
-                    width="stretch"
-                )
+            col1, col2, col3 = st.columns(3)
 
-        with col2:
-            if not upcoming_df.empty:
-                st.warning("🟠 7日以内に発表予定")
-                st.dataframe(
-                    upcoming_df,
-                    hide_index=True,
-                    width="stretch"
-                )
+            with col1:
+                if not today_df.empty:
+                    st.success("🔴 今日発表")
+                    st.dataframe(
+                        today_df,
+                        hide_index=True,
+                        width="stretch"
+                    )
 
-        with col3:
-            if not recent_df.empty:
-                st.info("🟢 過去7日以内に発表")
-                st.dataframe(
-                    recent_df,
-                    hide_index=True,
-                    width="stretch"
-                )
-    
+            with col2:
+                if not upcoming_df.empty:
+                    st.warning("🟠 7日以内に発表予定")
+                    st.dataframe(
+                        upcoming_df,
+                        hide_index=True,
+                        width="stretch"
+                    )
+
+            with col3:
+                if not recent_df.empty:
+                    st.info("🟢 過去7日以内に発表")
+                    st.dataframe(
+                        recent_df,
+                        hide_index=True,
+                        width="stretch"
+                    )
+
+
+    # =====================================================
+    # スマホ用表示
+    # =====================================================
+        with st.container(key="mobile_schedule_view"):
+
+            st.markdown(
+                f"#### 🔴 今日発表 {len(today_df)}件"
+            )
+            render_mobile_cards(today_df)
+
+            st.divider()
+
+            st.markdown(
+                f"#### 🟠 7日以内に発表予定 {len(upcoming_df)}件"
+            )
+            render_mobile_cards(
+                upcoming_df,
+                show_date=True
+            )
+
+            st.divider()
+
+            st.markdown(
+                f"#### 🟢 過去7日以内に発表 {len(recent_df)}件"
+            )
+            render_mobile_cards(
+                recent_df,
+                show_date=True
+            )
     
 # 【1-7】過去の分析結果詳細の呼び出し
     st.write("#### 📂 過去の分析結果を呼び出す")
