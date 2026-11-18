@@ -452,11 +452,12 @@ if not df_db.empty:
 
         # =====================================================
         # ① 買いシグナル（短期）
-        # 株価 < 目標株価 ＋ 短期候補ON
+        # 株価 < 目標株価 ＋ 短期候補ON ＋ 乖離率が閾値以上
         # =====================================================
         buy_short_df = alert_data[
             (alert_data["株価"] < alert_data["目標株価"])
             & (alert_data["短期投資候補"])
+            & (alert_data["乖離率(%)"] >= threshold)
         ].copy()
 
         buy_short_df = buy_short_df.sort_values(
@@ -467,11 +468,12 @@ if not df_db.empty:
 
         # =====================================================
         # ② 売りシグナル（短期）
-        # 株価 > 目標株価 ＋ 短期候補ON
+        # 株価 > 目標株価 ＋ 短期候補ON ＋ 乖離率の絶対値が閾値以上
         # =====================================================
         sell_short_df = alert_data[
             (alert_data["株価"] > alert_data["目標株価"])
             & (alert_data["短期投資候補"])
+            & (alert_data["乖離率(%)"] <= -threshold)
         ].copy()
 
         sell_short_df = sell_short_df.sort_values(
@@ -479,6 +481,7 @@ if not df_db.empty:
             ascending=True,
             na_position="last"
         )[display_cols]
+
 
     # =====================================================
     # ③ 買いシグナル（長期）
