@@ -33,6 +33,7 @@ from views.analysis_view import render_analysis_visuals
 # タイトル
 # ---------------------------------------------------------
 st.set_page_config(page_title="決算分析アプリ", layout="wide")
+st.title("📊 決算短信分析アプリ")
 
 # ---------------------------------------------------------
 # スマホ・PC表示切り替え
@@ -66,9 +67,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("📊 決算短信分析アプリ")
-st.write("決算短信をアップロードすると自動で分析を行います。")
-
 api_key = os.environ.get("GEMINI_API_KEY")
 if not api_key:
     api_key = st.sidebar.text_input("Gemini API Keyを入力してください", type="password")
@@ -76,7 +74,7 @@ if not api_key:
 # ---------------------------------------------------------
 # 【構成１】ウォッチリスト（既存データ）
 # ---------------------------------------------------------
-st.subheader("🗂️ マイ投資ウォッチリスト（保存済み企業一覧）")
+st.subheader("🗂️ 保存済み企業一覧")
 
 # 【1-1】株価更新ボタン
 col1, col2 = st.columns([1, 4])
@@ -793,7 +791,7 @@ if not df_db.empty:
             st.session_state.current_analysis = analysis
     
     input_ticker = st.text_input(
-        "確認したい企業の証券コード（4桁）を入力してください", 
+        "企業の証券コード（4桁）", 
         key="input_ticker",
         max_chars=4, 
         placeholder="例: 7203"
