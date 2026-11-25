@@ -23,110 +23,72 @@ def get_pct_string(current, base):
     change = (current - base) / base * 100
     return f"{change:+.1f}%"
 
+def render_cash_flow_table(stock_meta):
+    annual = stock_meta.get("annual_performance", {}) or {}
+    history = annual.get("history", {}) or {}
+    # CF情報が存在する年度のみ抽出
+    years = sorted(
+        [
+            y for y, data in history.items()
+            if isinstance(data.get("cash_flow"), dict)
+            and any(
+                v is not None
+                for v in data["cash_flow"].values()
+            )
+        ],
+        key=int
+    )
 
-def render_growth_table_past(stock_meta):
+    if not years:
+        return
 
-    st.write("#### 📈 通期実績・通期予想")
-
-    ap = stock_meta.get("annual_performance", {})  or {}
-    prior = ap.get("prior_year_actual", {}) or {}
-    current = ap.get("current_year_actual_or_forecast", {}) or {}
-    next_ = ap.get("next_year_forecast", {}) or {}
-
-    prior_year = prior.get("fiscal_year") 
-    current_year = current.get("fiscal_year") 
-    next_year = next_.get("fiscal_year") 
-
-    fiscal_month = stock_meta.get("analyzed_period") 
-    match = re.search(r"(\d+)月期", str(fiscal_month))
-    if match:
-        fiscal_month = int(match.group(1))
-    else:
-        fiscal_month = None
-
-    if next_year is not None:
-        current_year = next_year - 1
-        prior_year = next_year - 2
+    st.write("#### 💰 キャッシュフロー実績")
+    st.caption("単位：百万円")
 
     items = [
-        ("売上高", "revenue"),
-        ("売上総利益", "gross_profit"),
-        ("営業利益", "operating_income"),
-        ("経常利益", "ordinary_income"),
-        ("純利益", "net_income")
+        ("営業活動CF", "operating_cf"),
+        ("投資活動CF", "investing_cf"),
+        ("財務活動CF", "financing_cf"),
+        ("現金及び現金同等物の増減", "net_change_in_cash"),
+        ("フリーキャッシュフロー（FCF）", "free_cash_flow"),
     ]
 
     rows = []
 
     for item_name, metric in items:
+        row = {"項目": item_name}
+        for year in years:
+            cf = history[year].get("cash_flow", {})
+            if metric == "free_cash_flow":
+                operating = cf.get("operating_cf")
+                investing = cf.get("investing_cf")
 
-        prior_value = prior.get(metric)
-        current_value = current.get(metric)
-        next_value = next_.get(metric)
+                value = (
+                    operating + investing
+                    if operating is not None
+                    and investing is not None
+                    else None
+                )
 
-        row = {
-            "項目": item_name,
-            f"{prior_year}/{fiscal_month}期\n金額":
-                format_amount(prior_value),
-            f"{prior_year}/{fiscal_month}期\n利益率":
-                "-" if metric == "revenue"
-                else get_margin(prior_value, prior.get("revenue")),
-            f"{current_year}/{fiscal_month}期\n金額":
-                format_amount(current_value),
-            f"{current_year}/{fiscal_month}期\n利益率":
-                "-" if metric == "revenue"
-                else get_margin(current_value, current.get("revenue")),
-            f"{current_year}/{fiscal_month}期\n成長率":
-                get_pct_string(current_value, prior_value),
-            f"{next_year}/{fiscal_month}期\n金額":
-                format_amount(next_value),
-            f"{next_year}/{fiscal_month}期\n利益率":
-                "-" if metric == "revenue"
-                else get_margin(next_value, next_.get("revenue")),
-            f"{next_year}/{fiscal_month}期\n成長率":
-                get_pct_string(next_value, current_value)
-        }
+            else:
+                value = cf.get(metric)
 
-        rows.append(row)
+                row[f"{year}年"] = (
+                    f"{value:,.0f}"
+                    if value is not None
+                    else "-"
+                )
 
-    growth_df = pd.DataFrame(rows)
+            rows.append(row)
 
-    #
-    # 色付け
-    #
-    def style_table(df):
-        styles = pd.DataFrame(
-            "",
-            index=df.index,
-            columns=df.columns
+        cf_df = pd.DataFrame(rows)
+
+        st.dataframe(
+            cf_df,
+            hide_index=True,
+            width="stretch"
         )
-        # 2期前（灰色）
-        styles.iloc[:, 1:3] = "background-color:#fafafa"
-        # 直近期（水色）
-        styles.iloc[:, 3:6] = "background-color:#eef7ff"
-        # 次期（薄緑）
-        styles.iloc[:, 6:9] = "background-color:#e1fff1"
-        # 成長率の色
-        for col in df.columns:
-            if "成長率" in col:
-                for idx in df.index:
-                    val = str(df.loc[idx, col])
-                    if val.startswith("+"):
-                        styles.loc[idx, col] += "; color:green; font-weight:bold"
-                    elif val.startswith("-") and val != "-":
-                        styles.loc[idx, col] += "; color:red; font-weight:bold"
-        return styles
 
-    styled_df = (
-        growth_df.style
-        .apply(style_table, axis=None)
-    )
-
-    st.dataframe(
-        styled_df,
-        hide_index=True,
-        width="stretch"
-    )
 
 
 def render_growth_table(stock_meta):
@@ -220,7 +182,7 @@ def render_growth_table(stock_meta):
         width="stretch"
     )
 
-
+    render_cash_flow_table(stock_meta)
 
 
 
@@ -251,6 +213,8 @@ def get_progress_judgement(progress_pct, quarter):
         return "△ やや遅れ"
     else:
         return "× 遅れ"
+
+
 
 
 def render_progress_table(stock_meta, combined_data):
