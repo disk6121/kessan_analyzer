@@ -141,9 +141,9 @@ def analyze_pdfs(
                     if meta.get("eps_basic_yen") is not None: stock_meta["eps_basic"] = float(meta["eps_basic_yen"])
                     if meta.get("eps_diluted_yen") is not None: stock_meta["eps_diluted"] = float(meta["eps_diluted_yen"])
 
-                        ﻿# -----------------------------------------------------
-                        # 4Q決算の場合：通期実績とキャッシュフローを格納
-                        # -----------------------------------------------------
+                    ﻿# -----------------------------------------------------
+                    # 4Q決算の場合：通期実績とキャッシュフローを格納
+                    # -----------------------------------------------------
                     if q == "4Q" and res_json.get("annual_performance"):
                         annual = res_json["annual_performance"]
                         cf_data = res_json.get("cash_flow") or {}
