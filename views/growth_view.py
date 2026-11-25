@@ -73,22 +73,21 @@ def render_cash_flow_table(stock_meta):
             else:
                 value = cf.get(metric)
 
-                row[f"{year}年"] = (
-                    f"{value:,.0f}"
-                    if value is not None
-                    else "-"
-                )
+            row[f"{year}年"] = (
+                f"{value:,.0f}"
+                if value is not None
+                else "-"
+            )
 
-            rows.append(row)
+        rows.append(row)
 
-        cf_df = pd.DataFrame(rows)
+    cf_df = pd.DataFrame(rows)
 
-        st.dataframe(
-            cf_df,
-            hide_index=True,
-            width="stretch"
-        )
-
+    st.dataframe(
+        cf_df,
+        hide_index=True,
+        width="stretch"
+    )
 
 
 def render_growth_table(stock_meta):
