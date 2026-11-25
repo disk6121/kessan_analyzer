@@ -53,6 +53,22 @@ def merge_annual_performance(old_perf, new_perf):
                 tmp["type"] = "actual"
                 history[str(item["fiscal_year"])] = tmp
 
+                tmp = copy.deepcopy(item)
+                tmp["type"] = "actual"
+                year = str(item["fiscal_year"])
+
+                # 既存のCF情報を保持
+                old_item = history.get(year, {})
+                old_cf = old_item.get("cash_flow", {})
+                new_cf = tmp.get("cash_flow", {})
+                if old_cf or new_cf:
+                    merged_cf = copy.deepcopy(old_cf)
+                    for key, value in new_cf.items():
+                        if value is not None:
+                            merged_cf[key] = value
+                    tmp["cash_flow"] = merged_cf
+                history[year] = tmp
+       
         
         # -------------------------
         # ③ 来期予想
