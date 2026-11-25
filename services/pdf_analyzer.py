@@ -32,6 +32,19 @@ def analyze_pdfs(
         4. 投資指標・財務用データ(基本的1株当たり純利益、潜在株式調整後（希薄化後）1株当たり純利益を含む。)
         5. セグメント別情報
         6. 通期業績データ
+        7. キャッシュ・フロー情報
+                4Q決算短信の場合のみ、キャッシュ・フロー情報を抽出する。
+                連結決算の場合は、連結キャッシュ・フロー計算書を優先する。
+                個別決算の場合は、個別キャッシュ・フロー計算書を使用する。
+                当期と前期の両方について、以下を抽出する。
+                        ・営業活動によるキャッシュ・フロー
+                        ・投資活動によるキャッシュ・フロー
+                        ・財務活動によるキャッシュ・フロー
+                        ・現金及び現金同等物の増減額
+                金額はすべて百万円単位とする。
+                マイナスの数値も符号を維持する。
+                記載がない項目はnullとする。推測や0による補完は禁止。
+                FCFは抽出せず、営業活動CFと投資活動CFからプログラム側で計算する。
        
         必ず以下のJSON構造のみで出力してください。有効なJSONのみを出力してください。JSONは、json.loadでそのまま読み込める形式にしてください。
         {
@@ -53,6 +66,10 @@ def analyze_pdfs(
             "prior_year_actual": {"fiscal_year": 2025, "revenue": 38000000, "gross_profit": 14500000, "operating_income": 4000000, "ordinary_income": 4200000, "net_income": 3500000, "_source_quarter": "4Q"},
             "current_year_actual_or_forecast": {"fiscal_year": 2026, "revenue": 43000000, "gross_profit": 16800000, "operating_income": 4900000, "ordinary_income": 5000000, "net_income": 4500000},
             "next_year_forecast": {"fiscal_year": 2027, "revenue": 45000000, "gross_profit": 17600000, "operating_income": 5100000, "ordinary_income": 5300000, "net_income": 4700000}
+          },
+          "cash_flow": {
+            "current_year": {"operating_cf_million": 15000, "investing_cf_million": -10000, "financing_cf_million": -3000, "net_change_in_cash_million": 1800},
+            "prior_year": { "operating_cf_million": 12000, "investing_cf_million": -8000, "financing_cf_million": -2000, "net_change_in_cash_million": 1500}
           }
         }
         """
@@ -127,7 +144,36 @@ def analyze_pdfs(
                     if res_json.get("annual_performance"):
                             if q == "4Q":
                                     stock_meta["annual_performance"] = res_json["annual_performance"]
-
+                    if res_json.get("annual_performance") and q == "4Q":
+                         annual = res_json["annual_performance"]
+                         cf_data = res_json.get("cash_flow", {}) or {}
+                         cf_mapping = {
+                                 "current_year": "current_year_actual_or_forecast",
+                                 "prior_year": "prior_year_actual"
+                         }
+                         cf_keys = {
+                                 "operating_cf": "operating_cf_million",
+                                 "investing_cf": "investing_cf_million",
+                                 "financing_cf": "financing_cf_million",
+                                 "net_change_in_cash": "net_change_in_cash_million"
+                         }
+                            
+                         for cf_period, annual_key in cf_mapping.items():
+                                 annual_item = annual.get(annual_key)
+                                 if not annual_item:
+                                         continue
+                                 source_cf = cf_data.get(cf_period, {}) or {}
+                                 cash_flow = {}
+                                 for dest_key, source_key in cf_keys.items():
+                                         value = source_cf.get(source_key)
+                                         cash_flow[dest_key] = (
+                                                 float(value)
+                                                 if value is not None
+                                                 else None
+                                         )
+                                 annual_item["cash_flow"] = cash_flow
+                        stock_meta["annual_performance"] = annual
+        
             except Exception as e:
                 st.error(f"❌ {file.name} の処理中にエラー: {e}")
           
