@@ -172,7 +172,7 @@ def analyze_pdfs(
                                                  else None
                                          )
                                  annual_item["cash_flow"] = cash_flow
-                        stock_meta["annual_performance"] = annual
+                         stock_meta["annual_performance"] = annual
         
             except Exception as e:
                 st.error(f"❌ {file.name} の処理中にエラー: {e}")
