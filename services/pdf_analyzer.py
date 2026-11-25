@@ -33,7 +33,7 @@ def analyze_pdfs(
         5. セグメント別情報
         6. 通期業績データ
         7. キャッシュ・フロー情報
-                4Q決算短信の場合のみ、キャッシュ・フロー情報を抽出する。
+                4Q決算短信の場合のみ、キャッシュ・フロー情報を抽出する。それ以外の場合はcash_flowをnullとする。
                 連結決算の場合は、連結キャッシュ・フロー計算書を優先する。
                 個別決算の場合は、個別キャッシュ・フロー計算書を使用する。
                 当期と前期の両方について、以下を抽出する。
@@ -49,7 +49,7 @@ def analyze_pdfs(
         必ず以下のJSON構造のみで出力してください。有効なJSONのみを出力してください。JSONは、json.loadでそのまま読み込める形式にしてください。
         {
           "detected_fiscal_year": 2026,
-          "detected_quarter": "3Q",
+          "detected_quarter": "4Q",
           "ticker": "7203",
           "company_name": "トヨタ自動車",
           "analyzed_period": "2026年3月期 3Q",
@@ -140,40 +140,43 @@ def analyze_pdfs(
                     if meta.get("equity_ratio_percent") is not None: stock_meta["equity_ratio"] = meta["equity_ratio_percent"]
                     if meta.get("eps_basic_yen") is not None: stock_meta["eps_basic"] = float(meta["eps_basic_yen"])
                     if meta.get("eps_diluted_yen") is not None: stock_meta["eps_diluted"] = float(meta["eps_diluted_yen"])
-                       
-                    if res_json.get("annual_performance"):
-                            if q == "4Q":
-                                    stock_meta["annual_performance"] = res_json["annual_performance"]
-                    if res_json.get("annual_performance") and q == "4Q":
-                         annual = res_json["annual_performance"]
-                         cf_data = res_json.get("cash_flow", {}) or {}
-                         cf_mapping = {
-                                 "current_year": "current_year_actual_or_forecast",
-                                 "prior_year": "prior_year_actual"
-                         }
-                         cf_keys = {
-                                 "operating_cf": "operating_cf_million",
-                                 "investing_cf": "investing_cf_million",
-                                 "financing_cf": "financing_cf_million",
-                                 "net_change_in_cash": "net_change_in_cash_million"
-                         }
-                            
-                         for cf_period, annual_key in cf_mapping.items():
-                                 annual_item = annual.get(annual_key)
-                                 if not annual_item:
-                                         continue
-                                 source_cf = cf_data.get(cf_period, {}) or {}
-                                 cash_flow = {}
-                                 for dest_key, source_key in cf_keys.items():
-                                         value = source_cf.get(source_key)
-                                         cash_flow[dest_key] = (
-                                                 float(value)
-                                                 if value is not None
-                                                 else None
-                                         )
-                                 annual_item["cash_flow"] = cash_flow
-                         stock_meta["annual_performance"] = annual
-        
+
+                        ﻿# -----------------------------------------------------
+                        # 4Q決算の場合：通期実績とキャッシュフローを格納
+                        # -----------------------------------------------------
+                    if q == "4Q" and res_json.get("annual_performance"):
+                        annual = res_json["annual_performance"]
+                        cf_data = res_json.get("cash_flow") or {}
+
+                        # CFの抽出元と保存先の対応
+                        cf_mapping = {
+                                "current_year": "current_year_actual_or_forecast",
+                                "prior_year": "prior_year_actual"
+                        }
+                        cf_keys = {
+                                "operating_cf": "operating_cf_million",
+                                "investing_cf": "investing_cf_million",
+                                "financing_cf": "financing_cf_million",
+                                "net_change_in_cash": "net_change_in_cash_million"
+                        }
+
+                        for cf_period, annual_key in cf_mapping.items():
+                                annual_item = annual.get(annual_key)
+                                if not isinstance(annual_item, dict):
+                                        continue
+                                source_cf = cf_data.get(cf_period) or {}
+                                cash_flow = {}
+                                for dest_key, source_key in cf_keys.items():
+                                        value = source_cf.get(source_key)
+                                        try:
+                                                cash_flow[dest_key] = (
+                                                        float(value) if value is not None else None
+                                                )
+                                        except (TypeError, ValueError):
+                                                cash_flow[dest_key] = None
+                                annual_item["cash_flow"] = cash_flow
+                        stock_meta["annual_performance"] = annual
+
             except Exception as e:
                 st.error(f"❌ {file.name} の処理中にエラー: {e}")
           
