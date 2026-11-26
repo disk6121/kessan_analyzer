@@ -127,17 +127,16 @@ def render_annual_editor(stock_meta):
         # historyへ戻す
         # -------------------------
         if edited_annual_df is not None:
-
-            history = {}
-
+            # 既存historyを退避
+            old_history = history.copy()
+            new_history = {}
             for _, row in edited_annual_df.iterrows():
-
                 if pd.isna(row["年度"]):
                     continue
-
                 year = str(int(row["年度"]))
-
-                history[year] = {
+                # 既存年度のデータを引き継ぐ
+                old_data = old_history.get(year, {})
+                new_data = {
                     "fiscal_year": int(row["年度"]),
                     "type": (
                         "forecast"
@@ -150,17 +149,19 @@ def render_annual_editor(stock_meta):
                     "ordinary_income": float(row["経常利益"] or 0),
                     "net_income": float(row["純利益"] or 0),
                 }
-
+                # CF情報を引き継ぐ
+                if old_data.get("cash_flow") is not None:
+                    new_data["cash_flow"] = old_data["cash_flow"]
+                new_history[year] = new_data
             # -------------------------
             # 年度順に並べ替え
             # -------------------------
             history = dict(
                 sorted(
-                    history.items(),
+                    new_history.items(),
                     key=lambda x: int(x[0])
                 )
             )
-
             # -------------------------
             # 予想は最新年度だけ残す
             # -------------------------
@@ -169,19 +170,13 @@ def render_annual_editor(stock_meta):
                 for y, d in history.items()
                 if d.get("type") == "forecast"
             ]
-
             if len(forecast_years) > 1:
-
                 newest = max(forecast_years)
-
                 for y in history:
-
                     if (
                         history[y]["type"] == "forecast"
                         and int(y) != newest
                     ):
                         history[y]["type"] = "actual"
-
             ap["history"] = history
-
 
